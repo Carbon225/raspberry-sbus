@@ -4,13 +4,10 @@
 
 SBUS sbus;
 
-time_t lastPrint;
-time_t lastWrite;
-
 void onPacket(sbus_packet_t packet)
 {
-    time_t now;
-    time(&now);
+    static time_t lastPrint = time(nullptr);
+    time_t now = time(nullptr);
 
     if (now > lastPrint)
     {
@@ -31,18 +28,21 @@ void onPacket(sbus_packet_t packet)
 
 int main()
 {
-    time(&lastPrint);
-    time(&lastWrite);
-
-    printf("SBUS test\n");
+    printf("SBUS example\n");
 
     sbus.onPacket(onPacket);
-    sbus.install("/dev/ttyAMA0");
+
+    sbus_err_t ret = sbus.install("/dev/ttyAMA0");
+    if (ret != SBUS_OK)
+    {
+        fprintf(stderr, "SBUS install error: %d\n", ret);
+        return ret;
+    }
 
     while (sbus.read() == SBUS_OK)
     {
-        time_t now;
-        time(&now);
+        static time_t lastWrite = time(nullptr);
+        time_t now = time(nullptr);
 
         if (now > lastWrite)
         {
@@ -51,13 +51,13 @@ int main()
             uint16_t channels[16];
             for (int i = 0; i < 16; i++)
             {
-                channels[i] = 0x7fe;
+                channels[i] = i;
             }
 
             sbus_packet_t packet = {
                 channels,
-                true, true,
-                false, true
+                true, false,
+                true, false
             };
 
             sbus.write(packet);
