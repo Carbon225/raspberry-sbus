@@ -35,6 +35,7 @@ private:
 
     uint8_t _packet[SBUS_PACKET_SIZE] = { 0 };
     int _packetPos = 0;
+    int _nextRead;
     int _fd = -1;
 
     uint16_t _channels[16] = { 0 };

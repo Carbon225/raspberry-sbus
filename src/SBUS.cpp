@@ -6,6 +6,7 @@
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)
 
 SBUS::SBUS()
+    : _nextRead(READ_BUF_SIZE)
 {}
 
 SBUS::~SBUS()
@@ -35,7 +36,10 @@ sbus_err_t SBUS::onPacket(sbus_packet_cb cb)
 sbus_err_t SBUS::read()
 {
     uint8_t readBuf[READ_BUF_SIZE];
-    int nRead = sbus_read(&_fd, readBuf, READ_BUF_SIZE);
+    int nRead = sbus_read(&_fd, readBuf, _nextRead);
+
+    if (nRead < 0)
+        return SBUS_OK;
 
     bool hadDesync = false;
 
@@ -53,7 +57,8 @@ sbus_err_t SBUS::read()
                 break;
 
             case State::PACKET:
-                _packet[_packetPos++] = readBuf[i];
+                _packet[_packetPos] = readBuf[i];
+                _packetPos++;
                 if (_packetPos >= SBUS_PACKET_SIZE)
                 {
                     if (verifyPacket())
@@ -65,9 +70,19 @@ sbus_err_t SBUS::read()
                         hadDesync = true;
                     }
                     _state = State::WAIT_FOR_HEADER;
+                    _packetPos = 0;
                 }
                 break;
         }
+    }
+
+    if (_state == State::PACKET)
+    {
+        _nextRead = SBUS_PACKET_SIZE - _packetPos;
+    }
+    else
+    {
+        _nextRead = READ_BUF_SIZE;
     }
 
     return hadDesync ? SBUS_ERR_DESYNC : SBUS_OK;
