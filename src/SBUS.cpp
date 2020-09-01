@@ -62,9 +62,9 @@ sbus_err_t SBUS::read()
                     }
                     else
                     {
-                        _state = State::WAIT_FOR_HEADER;
                         hadDesync = true;
                     }
+                    _state = State::WAIT_FOR_HEADER;
                 }
                 break;
         }
