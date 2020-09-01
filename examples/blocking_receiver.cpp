@@ -28,11 +28,11 @@ void onPacket(sbus_packet_t packet)
 
 int main()
 {
-    printf("SBUS send to self non-blocking example\n\r");
+    printf("SBUS blocking receiver example\n\r");
 
     sbus.onPacket(onPacket);
 
-    sbus_err_t err = sbus.install("/dev/ttyAMA0", false);
+    sbus_err_t err = sbus.install("/dev/ttyAMA0", true);
     if (err != SBUS_OK)
     {
         fprintf(stderr, "SBUS install error: %d\n\r", err);
@@ -44,28 +44,6 @@ int main()
         if (err == SBUS_ERR_DESYNC)
         {
             fprintf(stderr, "SBUS desync\n\r");
-        }
-
-        static time_t lastWrite = time(nullptr);
-        time_t now = time(nullptr);
-
-        if (now > lastWrite)
-        {
-            lastWrite = now;
-
-            uint16_t channels[16];
-            for (int i = 0; i < 16; i++)
-            {
-                channels[i] = i;
-            }
-
-            sbus_packet_t packet = {
-                channels,
-                true, false,
-                true, false
-            };
-
-            sbus.write(packet);
         }
     }
 
