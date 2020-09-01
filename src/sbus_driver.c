@@ -90,7 +90,7 @@ sbus_err_t sbus_encode(uint8_t packet[25],
 
 sbus_err_t sbus_install(int *fd, const char *path, int blocking)
 {
-    *fd = open(path, O_RDWR | O_NOCTTY | (blocking * O_NONBLOCK));
+    *fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (*fd == -1)
     {
         return SBUS_ERR_OPEN;
