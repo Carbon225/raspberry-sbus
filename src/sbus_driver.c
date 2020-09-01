@@ -1,8 +1,10 @@
 #include "sbus_driver.h"
 
-#include <fcntl.h>
-#include <termios.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <asm/termbits.h>
+#include <asm/ioctls.h>
+#include <sys/ioctl.h>
 
 sbus_err_t sbus_decode(const uint8_t packet[],
                        uint16_t channels[],
@@ -96,8 +98,8 @@ sbus_err_t sbus_install(int *fd, const char *path, int blocking)
         return SBUS_ERR_OPEN;
     }
 
-    struct termios options;
-    if (tcgetattr(*fd, &options) != 0)
+    struct termios2 options;
+    if (ioctl(*fd, TCGETS2, &options) != 0)
     {
         return SBUS_ERR_TCGETS2;
     }
@@ -123,10 +125,11 @@ sbus_err_t sbus_install(int *fd, const char *path, int blocking)
     options.c_cc[VTIME] = 0;
     options.c_cc[VMIN] = SBUS_PACKET_SIZE;
 
-    cfsetispeed(&options, SBUS_BAUD);
-    cfsetospeed(&options, SBUS_BAUD);
+    options.c_cflag &= ~CBAUD;
+    options.c_cflag |= BOTHER;
+    options.c_ispeed = options.c_ospeed = SBUS_BAUD;
 
-    if (tcsetattr(*fd, TCSANOW, &options) != 0)
+    if (ioctl(*fd, TCSETS2, &options) != 0)
     {
         return SBUS_ERR_TCSETS2;
     }
