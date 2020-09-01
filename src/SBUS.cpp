@@ -1,5 +1,6 @@
 #include "SBUS.h"
 #include <cstdio>
+#include <termios.h>
 
 #define SBUS_DESYNC_END 2
 #define SBUS_DESYNC_HDR 1
@@ -35,10 +36,10 @@ sbus_err_t SBUS::onPacket(sbus_packet_cb cb)
 
 sbus_err_t SBUS::read()
 {
-    uint8_t readBuf[READ_BUF_SIZE];
+    uint8_t readBuf[READ_BUF_SIZE] = {0};
     int nRead = sbus_read(&_fd, readBuf, _nextRead);
 
-    if (nRead < 0)
+    if (nRead <= 0)
         return SBUS_OK;
 
     bool hadDesync = false;
@@ -84,6 +85,9 @@ sbus_err_t SBUS::read()
     {
         _nextRead = READ_BUF_SIZE;
     }
+
+    if (hadDesync)
+        tcflush(_fd, TCIFLUSH);
 
     return hadDesync ? SBUS_ERR_DESYNC : SBUS_OK;
 }
