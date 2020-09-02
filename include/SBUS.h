@@ -20,19 +20,29 @@ public:
     SBUS();
     ~SBUS();
 
-    sbus_err_t install(const char *path);
+    sbus_err_t install(const char *path, bool blocking);
     uint16_t channel(int num) const;
     sbus_err_t onPacket(sbus_packet_cb cb);
     sbus_err_t read();
     sbus_err_t write(sbus_packet_t packet);
 
 private:
-    uint16_t _channels[16] = { 0 };
-    uint8_t _packet[SBUS_PACKET_SIZE * 2] = { 0 };
+    enum class State
+    {
+        WAIT_FOR_HEADER,
+        PACKET,
+    } _state = State::WAIT_FOR_HEADER;
+
+    uint8_t _packet[SBUS_PACKET_SIZE] = { 0 };
     int _packetPos = 0;
+    int _nextRead;
     int _fd = -1;
-    int _desync;
+
+    uint16_t _channels[16] = { 0 };
     sbus_packet_cb _packetCb = nullptr;
+
+    bool verifyPacket();
+    void decodePacket();
 };
 
 

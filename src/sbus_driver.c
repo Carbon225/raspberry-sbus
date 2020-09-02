@@ -1,10 +1,10 @@
 #include "sbus_driver.h"
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <asm/termbits.h>
 #include <asm/ioctls.h>
 #include <sys/ioctl.h>
-#include <sys/select.h>
 
 sbus_err_t sbus_decode(const uint8_t packet[],
                        uint16_t channels[],
@@ -90,36 +90,46 @@ sbus_err_t sbus_encode(uint8_t packet[25],
     return SBUS_OK;
 }
 
-sbus_err_t sbus_install(int *fd, const char *path)
+sbus_err_t sbus_install(int *fd, const char *path, int blocking)
 {
-    *fd = open(path, O_RDWR | O_NOCTTY | O_NDELAY);
+    *fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (*fd == -1)
     {
         return SBUS_ERR_OPEN;
     }
 
     struct termios2 options;
-    if (ioctl(*fd, TCGETS2, &options))
+    if (ioctl(*fd, TCGETS2, &options) != 0)
     {
         return SBUS_ERR_TCGETS2;
     }
 
-    options.c_cflag &= ~CBAUD;
+    options.c_cflag |= PARENB;
+    options.c_cflag |= CSTOPB;
+    options.c_cflag |= CS8;
+    options.c_cflag &= ~CRTSCTS;
+    options.c_cflag |= CREAD | CLOCAL;
 
-    options.c_cflag &= ~CRTSCTS; // no hardware flow control
-    options.c_iflag &= ~(IXON | IXOFF | IXANY); // disable XON/XOFF flow control
+    options.c_lflag &= ~ICANON;
+    options.c_lflag &= ~ECHO;
+    options.c_lflag &= ~ECHOE;
+    options.c_lflag &= ~ECHONL;
+    options.c_lflag &= ~ISIG;
 
-    // raw mode
-    options.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-                         | INLCR | IGNCR | ICRNL | IXON);
+    options.c_iflag &= ~(IXON | IXOFF | IXANY);
+    options.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL);
+
     options.c_oflag &= ~OPOST;
-    options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-    options.c_cflag &= ~(CSIZE | PARENB);
+    options.c_oflag &= ~ONLCR;
 
-    options.c_cflag |= BOTHER | CSTOPB | PARENB | CS8 | CLOCAL | CREAD;
-    options.c_ispeed = options.c_ospeed = 100000;
+    options.c_cc[VTIME] = 0;
+    options.c_cc[VMIN] = SBUS_PACKET_SIZE;
 
-    if (ioctl(*fd, TCSETS2, &options))
+    options.c_cflag &= ~CBAUD;
+    options.c_cflag |= BOTHER;
+    options.c_ispeed = options.c_ospeed = SBUS_BAUD;
+
+    if (ioctl(*fd, TCSETS2, &options) != 0)
     {
         return SBUS_ERR_TCSETS2;
     }
@@ -133,26 +143,9 @@ sbus_err_t sbus_uninstall(const int *fd)
         close(*fd);
 }
 
-int sbus_read(const int *fd, uint8_t *out)
+int sbus_read(const int *fd, uint8_t *out, int bufSize)
 {
-    fd_set set;
-    struct timeval tout;
-    tout.tv_sec = 0;
-    tout.tv_usec = 0;
-    FD_ZERO(&set);
-    FD_SET(*fd, &set);
-
-    // TODO read multiple bytes
-
-    if (select(FD_SETSIZE, &set, NULL, NULL, &tout) > 0)
-    {
-        read(*fd, out, 1);
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+    return read(*fd, out, bufSize);
 }
 
 sbus_err_t sbus_write(const int *fd, const uint16_t *channels, uint8_t opt)

@@ -17,7 +17,9 @@ extern "C" {
 #define SBUS_ERR_TCSETS2 -3
 #define SBUS_FAIL -4
 #define SBUS_ERR_INVALID_ARG -5
+#define SBUS_ERR_DESYNC -6
 
+#define SBUS_BAUD 100000
 #define SBUS_PACKET_SIZE 25
 #define SBUS_HEADER 0x0f
 #define SBUS_END 0x00
@@ -37,10 +39,10 @@ sbus_err_t sbus_encode(uint8_t packet[SBUS_PACKET_SIZE],
                        const uint16_t channels[16],
                        uint8_t opt);
 
-sbus_err_t sbus_install(int *fd, const char *path);
+sbus_err_t sbus_install(int *fd, const char *path, int blocking);
 sbus_err_t sbus_uninstall(const int *fd);
 
-int sbus_read(const int *fd, uint8_t *out);
+int sbus_read(const int *fd, uint8_t *out, int bufSize);
 sbus_err_t sbus_write(const int *fd, const uint16_t *channels, uint8_t opt);
 
 #ifdef __cplusplus
