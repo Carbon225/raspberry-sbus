@@ -39,7 +39,7 @@ sbus_err_t sbus_encode(uint8_t packet[SBUS_PACKET_SIZE],
                        const uint16_t channels[16],
                        uint8_t opt);
 
-sbus_err_t sbus_install(int *fd, const char *path, int blocking);
+sbus_err_t sbus_install(int *fd, const char *path, int blocking, uint8_t timeout);
 sbus_err_t sbus_uninstall(const int *fd);
 
 int sbus_read(const int *fd, uint8_t *out, int bufSize);

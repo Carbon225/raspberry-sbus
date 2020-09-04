@@ -90,7 +90,7 @@ sbus_err_t sbus_encode(uint8_t packet[25],
     return SBUS_OK;
 }
 
-sbus_err_t sbus_install(int *fd, const char *path, int blocking)
+sbus_err_t sbus_install(int *fd, const char *path, int blocking, uint8_t timeout)
 {
     *fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (*fd == -1)
@@ -122,7 +122,7 @@ sbus_err_t sbus_install(int *fd, const char *path, int blocking)
     options.c_oflag &= ~OPOST;
     options.c_oflag &= ~ONLCR;
 
-    options.c_cc[VTIME] = 0;
+    options.c_cc[VTIME] = timeout;
     options.c_cc[VMIN] = SBUS_PACKET_SIZE;
 
     options.c_cflag &= ~CBAUD;
