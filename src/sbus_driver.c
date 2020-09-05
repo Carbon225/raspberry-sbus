@@ -123,7 +123,7 @@ sbus_err_t sbus_install(int *fd, const char *path, int blocking, uint8_t timeout
     options.c_oflag &= ~ONLCR;
 
     options.c_cc[VTIME] = timeout;
-    options.c_cc[VMIN] = SBUS_PACKET_SIZE;
+    options.c_cc[VMIN] = timeout == 0 ? SBUS_PACKET_SIZE : 0;
 
     options.c_cflag &= ~CBAUD;
     options.c_cflag |= BOTHER;
