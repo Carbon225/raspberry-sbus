@@ -15,9 +15,9 @@ SBUS::~SBUS()
     sbus_uninstall(&_fd);
 }
 
-sbus_err_t SBUS::install(const char *path, bool blocking)
+sbus_err_t SBUS::install(const char *path, bool blocking, uint8_t timeout)
 {
-    return sbus_install(&_fd, path, blocking);
+    return sbus_install(&_fd, path, blocking, timeout);
 }
 
 uint16_t SBUS::channel(int num) const
