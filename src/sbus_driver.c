@@ -17,9 +17,7 @@ sbus_err_t sbus_decode(const uint8_t packet[],
         return SBUS_FAIL;
     }
 
-    // TODO rewrite decoder
-
-    uint8_t *payload = packet + 1;
+    const uint8_t *payload = packet + 1;
     channels[0]  = (uint16_t)((payload[0]    | payload[1] << 8)                          & 0x07FF);
     channels[1]  = (uint16_t)((payload[1] >> 3 | payload[2] << 5)                        & 0x07FF);
     channels[2]  = (uint16_t)((payload[2] >> 6 | payload[3] << 2 | payload[4] << 10)     & 0x07FF);
