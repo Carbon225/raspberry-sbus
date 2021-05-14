@@ -52,3 +52,5 @@ In blocking mode `read` will block and wait for a packet to arrive while non-blo
 ### Send
 - Create `sbus_packet_t myPacket` object and populate its fields
 - `sbus.write(myPacket)` to send an SBUS packet
+
+Look at examples folder for more.
