@@ -9,6 +9,7 @@ void onPacket(sbus_packet_t packet)
     static time_t lastPrint = time(nullptr);
     time_t now = time(nullptr);
 
+    // retransmit received packet
     sbus.write(packet);
 
     if (now > lastPrint)
@@ -41,8 +42,10 @@ int main()
         return err;
     }
 
+    // wait for packet
     while ((err = sbus.read()) != SBUS_FAIL)
     {
+        // desync means a packet was misaligned and not received properly
         if (err == SBUS_ERR_DESYNC)
         {
             fprintf(stderr, "SBUS desync\n\r");

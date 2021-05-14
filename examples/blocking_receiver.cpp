@@ -39,8 +39,10 @@ int main()
         return err;
     }
 
+    // wait for packet
     while ((err = sbus.read()) != SBUS_FAIL)
     {
+        // desync means a packet was misaligned and not received properly
         if (err == SBUS_ERR_DESYNC)
         {
             fprintf(stderr, "SBUS desync\n\r");
