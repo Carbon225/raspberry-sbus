@@ -18,7 +18,17 @@ SBUS protocol specification and original decoding function: https://github.com/b
 - Clone this repo somewhere into your project
 - Add `add_subdirectory(path/to/raspberry-sbus)` to your CMakeLists.txt
 - Link the library to your targets with `target_link_libraries(your_target PUBLIC sbuslib)`.
-Look at CMakeLists.txt in the root of this repo for a full example.
+
+Example CMakeLists.txt
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(my-sbus-project)
+
+add_subdirectory(raspberry-sbus) # relative path to the cloned repo
+
+add_executable(main main.cpp)
+target_link_libraries(main PUBLIC sbuslib)
+```
 
 ## Blocking vs. Non-blocking
 In blocking mode the `read` function waits for at least one packet to be available (not using CPU time).
