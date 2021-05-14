@@ -39,8 +39,10 @@ int main()
         return err;
     }
 
+    // non-blocking mode, read will poll the serial port
     while ((err = sbus.read()) != SBUS_FAIL)
     {
+        // desync means a packet was misaligned and not received properly
         if (err == SBUS_ERR_DESYNC)
         {
             fprintf(stderr, "SBUS desync\n\r");
@@ -49,6 +51,10 @@ int main()
         static time_t lastWrite = time(nullptr);
         time_t now = time(nullptr);
 
+        /*
+         * receiving happens independently so we can do other things
+         * here we send a packet every second
+         */
         if (now > lastWrite)
         {
             lastWrite = now;
@@ -65,6 +71,7 @@ int main()
                 true, false
             };
 
+            // make sure to limit sending frequency, SBUS is not that fast
             sbus.write(packet);
         }
     }
