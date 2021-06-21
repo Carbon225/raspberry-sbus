@@ -11,23 +11,23 @@ extern "C" {
 #include <stdint.h>
 #endif
 
-#define SBUS_OK 0
-#define SBUS_ERR_OPEN -1
-#define SBUS_ERR_TCGETS2 -2
-#define SBUS_ERR_TCSETS2 -3
-#define SBUS_FAIL -4
-#define SBUS_ERR_INVALID_ARG -5
-#define SBUS_ERR_DESYNC -6
+#define SBUS_OK (0)
+#define SBUS_ERR_OPEN (-1)
+#define SBUS_ERR_TCGETS2 (-2)
+#define SBUS_ERR_TCSETS2 (-3)
+#define SBUS_FAIL (-4)
+#define SBUS_ERR_INVALID_ARG (-5)
+#define SBUS_ERR_DESYNC (-6)
 
-#define SBUS_BAUD 100000
-#define SBUS_PACKET_SIZE 25
-#define SBUS_HEADER 0x0f
-#define SBUS_END 0x00
+#define SBUS_BAUD (100000)
+#define SBUS_PACKET_SIZE (25)
+#define SBUS_HEADER (0x0f)
+#define SBUS_END (0x00)
 
-#define SBUS_OPT_C17 (uint8_t) 0b0001
-#define SBUS_OPT_C18 (uint8_t) 0b0010
-#define SBUS_OPT_FS  (uint8_t) 0b1000
-#define SBUS_OPT_FL  (uint8_t) 0b0100
+#define SBUS_OPT_C17 ((uint8_t) 0b0001)
+#define SBUS_OPT_C18 ((uint8_t) 0b0010)
+#define SBUS_OPT_FS  ((uint8_t) 0b1000)
+#define SBUS_OPT_FL  ((uint8_t) 0b0100)
 
 typedef int sbus_err_t;
 
