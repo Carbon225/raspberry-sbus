@@ -23,7 +23,7 @@ sbus_err_t SBUS::install(const char *path, bool blocking, uint8_t timeout)
 uint16_t SBUS::channel(int num) const
 {
     if (num >= 0 & num < 16)
-        return channel(num);
+        return _channels[num];
     else
         return 0;
 }
