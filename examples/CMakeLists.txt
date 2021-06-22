@@ -6,3 +6,6 @@ target_link_libraries(blocking_receiver PUBLIC libsbus)
 
 add_executable(passthrough passthrough.cpp)
 target_link_libraries(passthrough PUBLIC libsbus)
+
+add_executable(sbus2_telemetry sbus2_telemetry.cpp)
+target_link_libraries(sbus2_telemetry PUBLIC libsbus)

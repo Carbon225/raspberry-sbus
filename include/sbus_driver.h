@@ -23,6 +23,11 @@ extern "C" {
 #define SBUS_PACKET_SIZE (25)
 #define SBUS_HEADER (0x0f)
 #define SBUS_END (0x00)
+#define SBUS_TELEMETRY_SLOTS_0_7 (0x04)
+#define SBUS_TELEMETRY_SLOTS_8_15 (0x14)
+#define SBUS_TELEMETRY_SLOTS_16_23 (0x24)
+#define SBUS_TELEMETRY_SLOTS_24_31 (0x34)
+#define SBUS_TELEMETRY_BYTES (2)
 
 #define SBUS_OPT_C17 ((uint8_t) 0b0001)
 #define SBUS_OPT_C18 ((uint8_t) 0b0010)

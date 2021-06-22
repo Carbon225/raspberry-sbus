@@ -34,6 +34,12 @@ sbus_err_t SBUS::onPacket(sbus_packet_cb cb)
     return SBUS_OK;
 }
 
+sbus_err_t SBUS::onTelemetry(sbus_telemetry_cb cb)
+{
+    _telemetryCb = cb;
+    return SBUS_OK;
+}
+
 sbus_err_t SBUS::read()
 {
     uint8_t readBuf[READ_BUF_SIZE] = {0};
@@ -62,16 +68,70 @@ sbus_err_t SBUS::read()
                 _packetPos++;
                 if (_packetPos >= SBUS_PACKET_SIZE)
                 {
-                    if (verifyPacket())
+                    if (verifyPacket(_packet))
                     {
                         decodePacket();
+
+                        if (isTelemetrySlot(readBuf[i]))
+                        {
+                            // expect telemetry data
+                            _state = State::TELEMETRY_TYPE;
+                            _receivedTelemetrySlots = 0;
+                        }
+                        else
+                        {
+                            _state = State::WAIT_FOR_HEADER;
+                        }
                     }
                     else
                     {
                         hadDesync = true;
+                        _state = State::WAIT_FOR_HEADER;
                     }
-                    _state = State::WAIT_FOR_HEADER;
-                    _packetPos = 0;
+                }
+                break;
+
+            // waiting for telemetry type for time slot
+            case State::TELEMETRY_TYPE:
+                switch (readBuf[i])
+                {
+                    case SBUS_HEADER:
+                        // no telemetry received
+                        _packet[0] = SBUS_HEADER;
+                        _packetPos = 1;
+                        _state = State::PACKET;
+                        break;
+
+                    default:
+                        // assume what we got was a sensor type
+                        _telemetryType = readBuf[i];
+                        _telemetryPos = 0;
+                        _state = State::TELEMETRY_DATA;
+                        // begin waiting for data
+                        break;
+                }
+                break;
+
+            case State::TELEMETRY_DATA:
+                _telemetryData[_telemetryPos] = readBuf[i];
+                _telemetryPos++;
+                if (_telemetryPos >= SBUS_TELEMETRY_BYTES)
+                {
+                    handleTelemetry();
+                    _receivedTelemetrySlots++;
+
+                    // make sure we do not get stuck reading incorrect telemetry
+                    if (_receivedTelemetrySlots >= 8)
+                    {
+                        // looks like we desynchronized
+                        hadDesync = true;
+                        _state = State::WAIT_FOR_HEADER;
+                    }
+                    else
+                    {
+                        // try reading more sensor slots
+                        _state = State::TELEMETRY_TYPE;
+                    }
                 }
                 break;
         }
@@ -103,9 +163,28 @@ sbus_err_t SBUS::write(sbus_packet_t packet)
     return SBUS_OK;
 }
 
-bool SBUS::verifyPacket()
+bool SBUS::verifyPacket(const uint8_t packet[])
 {
-    return (_packet[0] == SBUS_HEADER) && (_packet[SBUS_PACKET_SIZE - 1] == SBUS_END);
+    const uint8_t first = packet[0];
+    const uint8_t last = packet[SBUS_PACKET_SIZE - 1];
+
+    return (first == SBUS_HEADER &&
+            (last == SBUS_END || isTelemetrySlot(last)));
+}
+
+bool SBUS::isTelemetrySlot(uint8_t byte)
+{
+    switch (byte)
+    {
+        case SBUS_TELEMETRY_SLOTS_0_7:
+        case SBUS_TELEMETRY_SLOTS_8_15:
+        case SBUS_TELEMETRY_SLOTS_16_23:
+        case SBUS_TELEMETRY_SLOTS_24_31:
+            return true;
+
+        default:
+            return false;
+    }
 }
 
 void SBUS::decodePacket()
@@ -122,5 +201,21 @@ void SBUS::decodePacket()
                 (bool) (opt & SBUS_OPT_FL)
         };
         _packetCb(packet);
+    }
+}
+
+void SBUS::handleTelemetry()
+{
+    if (_telemetryCb)
+    {
+        sbus_telemetry_t data;
+        data.type = _telemetryType;
+
+        // might be wrong endian
+        data.data = _telemetryData[1];
+        data.data <<= 8;
+        data.data |= _telemetryData[0];
+
+        _telemetryCb(data);
     }
 }
