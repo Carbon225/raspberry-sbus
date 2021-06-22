@@ -117,11 +117,10 @@ sbus_err_t SBUS::read()
                 _telemetryPos++;
                 if (_telemetryPos >= SBUS_TELEMETRY_BYTES)
                 {
-                    handleTelemetry();
                     _receivedTelemetrySlots++;
 
                     // make sure we do not get stuck reading incorrect telemetry
-                    if (_receivedTelemetrySlots >= 8)
+                    if (_receivedTelemetrySlots >= 9)
                     {
                         // looks like we desynchronized
                         hadDesync = true;
@@ -129,6 +128,8 @@ sbus_err_t SBUS::read()
                     }
                     else
                     {
+                        handleTelemetry();
+
                         // try reading more sensor slots
                         _state = State::TELEMETRY_TYPE;
                     }
