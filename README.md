@@ -17,7 +17,7 @@ SBUS protocol specification and original decoding function: https://github.com/b
 - Create a CMake project
 - Clone this repo somewhere into your project
 - Add `add_subdirectory(path/to/raspberry-sbus)` to your CMakeLists.txt
-- Link the library to your targets with `target_link_libraries(your_target PUBLIC sbuslib)`.
+- Link the library to your targets with `target_link_libraries(your_target PUBLIC libsbus)`.
 
 Example CMakeLists.txt
 ```cmake
@@ -27,7 +27,7 @@ project(my-sbus-project)
 add_subdirectory(raspberry-sbus) # relative path to the cloned repo
 
 add_executable(main main.cpp)
-target_link_libraries(main PUBLIC sbuslib)
+target_link_libraries(main PUBLIC libsbus)
 ```
 
 ## Blocking vs. Non-blocking
