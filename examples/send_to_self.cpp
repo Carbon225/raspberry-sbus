@@ -59,17 +59,16 @@ int main()
         {
             lastWrite = now;
 
-            uint16_t channels[16];
+            sbus_packet_t packet;
+            packet.ch17 = true;
+            packet.ch18 = false;
+            packet.failsafe = true;
+            packet.frameLost = false;
+
             for (int i = 0; i < 16; i++)
             {
-                channels[i] = i;
+                packet.channels[i] = i;
             }
-
-            sbus_packet_t packet = {
-                channels,
-                true, false,
-                true, false
-            };
 
             // make sure to limit sending frequency, SBUS is not that fast
             sbus.write(packet);

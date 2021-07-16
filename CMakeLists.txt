@@ -4,6 +4,7 @@ project(rpi_sbus)
 add_library(libsbus STATIC
         src/SBUS.cpp
         src/sbus_driver.c
+        src/DecoderFSM.cpp
 )
 
 target_include_directories(libsbus PUBLIC include)
