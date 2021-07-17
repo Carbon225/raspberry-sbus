@@ -31,12 +31,12 @@ target_link_libraries(main PUBLIC libsbus)
 ```
 
 ## Blocking vs. Non-blocking
-In blocking mode the `read` function waits for at least one packet to be available (not using CPU time).
+In blocking mode the `read` function blocks until some data is available.
 This mode is best used when your code contains a main loop that does not need to process anything when there are no packets.
-You can also create a seperate thread for reading.
+You can also create a separate thread for reading.
 
-In non-blocking mode `read` processes only available bytes and returns immediately.
-This works like polling. You have to call `read` as often as possible.
+In non-blocking mode `read` processes only available bytes (or nothing if none are available) and returns immediately.
+You have to call `read` as often as possible to make sure you don't skip any bytes.
 The most common use case is when your main loop does other things and only processes SBUS packets when one arrives.
 
 ## Usage:
@@ -47,8 +47,8 @@ The most common use case is when your main loop does other things and only proce
 ### Receive
 - Define packet callback `void packetCallback(sbus_packet_t packet) {/* handle packet */}`
 - Set packet callback with `sbus.onPacket(packetCallback)`
-- Call `sbus.read()` as often as possible to poll the serial port (non-blocking) or at least once per packet (blocking mode).
-In blocking mode `read` will block and wait for a packet to arrive while non-blocking works by polling and returns immediately.
+- Call `sbus.read()` as often as possible to process buffered data from the serial port (non-blocking) or at least once per packet (blocking mode).
+In blocking mode `read` will block and wait for data to arrive while non-blocking mode only checks if any data is available and returns immediately.
 ### Send
 - Create `sbus_packet_t myPacket` object and populate its fields
 - `sbus.write(myPacket)` to send an SBUS packet

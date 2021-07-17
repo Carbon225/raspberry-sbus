@@ -35,14 +35,14 @@ int main()
 
     sbus.onPacket(onPacket);
 
-    sbus_err_t err = sbus.install("/dev/ttyAMA0", true);
+    sbus_err_t err = sbus.install("/dev/ttyAMA0", true);  // true for blocking mode
     if (err != SBUS_OK)
     {
         fprintf(stderr, "SBUS install error: %d\n\r", err);
         return err;
     }
 
-    // wait for packet
+    // blocks until data is available
     while ((err = sbus.read()) != SBUS_FAIL)
     {
         // desync means a packet was misaligned and not received properly
