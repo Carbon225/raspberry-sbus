@@ -2,6 +2,9 @@
 #include <ctime>
 #include "SBUS.h"
 
+// uncomment if you have an FTDI adapter to enable low latency mode (might work on other adapters as well)
+//#define FTDI_ADAPTER
+
 SBUS sbus;
 
 void onPacket(sbus_packet_t packet)
@@ -41,6 +44,16 @@ int main()
         fprintf(stderr, "SBUS install error: %d\n\r", err);
         return err;
     }
+
+#ifdef FTDI_ADAPTER
+    // enable only if you have weird packet timings (mostly on FTDI chips)
+    err = sbus.setLowLatencyMode(true);
+    if (err != SBUS_OK)
+    {
+        fprintf(stderr, "SBUS set low latency error: %d\n\r", err);
+        return err;
+    }
+#endif
 
     // blocks until data is available
     while ((err = sbus.read()) != SBUS_FAIL)

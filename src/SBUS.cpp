@@ -1,4 +1,5 @@
 #include "SBUS.h"
+#include "sbus_low_latency.h"
 #include <cstdio>
 #include <termios.h>
 
@@ -18,6 +19,11 @@ SBUS::~SBUS()
 sbus_err_t SBUS::install(const char *path, bool blocking, uint8_t timeout)
 {
     return sbus_install(&_fd, path, blocking, timeout);
+}
+
+sbus_err_t SBUS::setLowLatencyMode(bool enable)
+{
+    return _fd < 0 ? SBUS_FAIL : sbus_set_low_latency(_fd, enable);
 }
 
 uint16_t SBUS::channel(int num) const

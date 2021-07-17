@@ -21,6 +21,7 @@ public:
     ~SBUS();
 
     sbus_err_t install(const char *path, bool blocking, uint8_t timeout = 0);
+    sbus_err_t setLowLatencyMode(bool enable);
     uint16_t channel(int num) const;
     sbus_err_t onPacket(sbus_packet_cb cb);
     sbus_err_t read();
