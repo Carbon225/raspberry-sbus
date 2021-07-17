@@ -1,7 +1,12 @@
 # Raspberry Pi/Linux SBUS Driver
 C++ SBUS library working on the Raspberry Pi and possibly any linux system with a serial port.
+
 To use the built-in UART on the RPi 3 make sure to use the PL011 (ttyAMA0) as the mini UART does not support parity.
 It is also possible to use a simple USB-Serial converter (expect latency with FTDI adapters, fix coming soon).
+
+Also, don't forget to use an inverter to invert the SBUS signal!
+Something like this works well. I use 10k resistors.
+https://electronicspost.com/explain-the-logic-not-gate-or-inverter-and-its-operation-with-truth-table/
 
 ## Features:
 - Non-blocking and blocking modes
