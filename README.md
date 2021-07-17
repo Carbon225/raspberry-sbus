@@ -2,7 +2,8 @@
 C++ SBUS library working on the Raspberry Pi and possibly any linux system with a serial port.
 
 To use the built-in UART on the RPi 3 make sure to use the PL011 (ttyAMA0) as the mini UART does not support parity.
-It is also possible to use a simple USB-Serial converter (expect latency with FTDI adapters, fix coming soon).
+It is also possible to use a simple USB-Serial converter.
+For FTDI adapters use `setLowLatencyMode(true)`.
 
 Also, don't forget to use an inverter to invert the SBUS signal!
 Something like this works well. I use 10k resistors.
@@ -15,6 +16,7 @@ https://electronicspost.com/explain-the-logic-not-gate-or-inverter-and-its-opera
 - Channels 17 and 18 (whatever they are for)
 - Failsafe and frame lost bits
 - Automatic recovery from hardware failures like broken wiring
+- FTDI low latency support
 
 SBUS protocol specification and original decoding function: https://github.com/bolderflight/SBUS
 
@@ -49,6 +51,7 @@ The most common use case is when your main loop does other things and only proce
 - `#include <SBUS.h>`
 - Create `SBUS sbus` object
 - `sbus.install("/path/to/tty", blocking_mode)` to init the serial port
+- `sbus.setLowLatencyMode(true)` if you have an FTDI adapter
 ### Receive
 - Define packet callback `void packetCallback(sbus_packet_t packet) {/* handle packet */}`
 - Set packet callback with `sbus.onPacket(packetCallback)`
@@ -59,3 +62,8 @@ In blocking mode `read` will block and wait for data to arrive while non-blockin
 - `sbus.write(myPacket)` to send an SBUS packet
 
 Look at examples folder for more.
+
+## Low latency mode
+FTDI adapters have weird buffering that makes packets send in batches and not right after calling `write()`.
+Enabling low latency mode fixes this by doing some magic even I don't understand.
+Credit goes to https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp.
