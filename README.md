@@ -1,7 +1,10 @@
 # Raspberry Pi/Linux SBUS Driver
 C++ SBUS library working on the Raspberry Pi and possibly any linux system with a serial port.
 
-To use the built-in UART on the RPi 3 make sure to use the PL011 (ttyAMA0) as the mini UART does not support parity.
+To use the built-in UART on the raspberry make sure to use the PL011 (e.g. ttyAMA0) as the mini UART does not support parity.
+By default the first PL011 is connected to bluetooth so you will have to either disable it and set the PL011 as the primary UART or enable additional UARTs (only on RPi 4).
+Refer to https://www.raspberrypi.org/documentation/configuration/uart.md.
+
 It is also possible to use a simple USB-Serial converter.
 For FTDI adapters use `setLowLatencyMode(true)`.
 
