@@ -9,10 +9,9 @@ DecoderFSM::DecoderFSM()
 
 }
 
-sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync)
+sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesyncOut)
 {
-    if (hadDesync)
-        *hadDesync = false;
+    bool hadDesync = false;
 
     for (int i = 0; i < n; i++)
     {
@@ -35,13 +34,13 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync)
                     if (verifyPacket() == SBUS_OK &&
                         decodePacket() == SBUS_OK)
                     {
-                        if (hadDesync)
-                            *hadDesync = false;
+                        hadDesync = false;  // clear desync if last packet was ok
                         notifyCallback();
                     }
-
-                    else if (hadDesync)
-                        *hadDesync = true;
+                    else
+                    {
+                        hadDesync = true;
+                    }
 
                     _state = State::WAIT_FOR_HEADER;
                     _packetPos = 0;
@@ -49,6 +48,9 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync)
                 break;
         }
     }
+
+    if (hadDesyncOut)
+        *hadDesyncOut = hadDesync;
 
     return SBUS_OK;
 }
