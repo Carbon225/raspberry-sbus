@@ -13,6 +13,8 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesyncOut)
 {
     bool hadDesync = false;
 
+    int headerByte = -1;
+
     for (int i = 0; i < n; i++)
     {
         switch (_state)
@@ -20,6 +22,7 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesyncOut)
             case State::WAIT_FOR_HEADER:
                 if (buf[i] == SBUS_HEADER)
                 {
+                    headerByte = i;
                     _packetBuf[0] = SBUS_HEADER;
                     _packetPos = 1;
                     _state = State::PACKET;
@@ -39,7 +42,15 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesyncOut)
                     }
                     else
                     {
-                        hadDesync = true;
+                        if (headerByte >= 0)
+                        {
+                            // retry scanning after last header
+                            i = headerByte;
+                        }
+                        else
+                        {
+                            hadDesync = true;
+                        }
                     }
 
                     _state = State::WAIT_FOR_HEADER;
