@@ -32,7 +32,8 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync, int *mi
                 _packetPos++;
                 if (_packetPos >= SBUS_PACKET_SIZE)
                 {
-                    if (verifyPacket() && decodePacket())
+                    if (verifyPacket() == SBUS_OK &&
+                        decodePacket() == SBUS_OK)
                         notifyCallback();
 
                     else if (hadDesync)
