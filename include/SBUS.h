@@ -30,7 +30,6 @@ public:
     const sbus_packet_t& lastPacket() const;
 
 private:
-    int _nextRead;
     int _fd;
     DecoderFSM _decoder;
 };

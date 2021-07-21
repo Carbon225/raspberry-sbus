@@ -5,8 +5,7 @@
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)
 
 SBUS::SBUS()
-    : _nextRead(READ_BUF_SIZE)
-    , _fd(-1)
+    : _fd(-1)
 {}
 
 SBUS::~SBUS()
@@ -41,19 +40,18 @@ sbus_err_t SBUS::read()
     if (_fd < 0)
         return SBUS_FAIL;
 
-    int nRead = sbus_read(&_fd, readBuf, _nextRead);
+    int nRead = sbus_read(&_fd, readBuf, READ_BUF_SIZE);
 
     // TODO SBUS_OK if timeout, else error
     if (nRead <= 0)
         return SBUS_OK;
 
     bool hadDesync = false;
-    _decoder.feed(readBuf, nRead, &hadDesync, &_nextRead);
+    _decoder.feed(readBuf, nRead, &hadDesync);
 
     if (hadDesync)
     {
         tcflush(_fd, TCIFLUSH);
-        _nextRead = READ_BUF_SIZE;
     }
 
     return hadDesync ? SBUS_ERR_DESYNC : SBUS_OK;

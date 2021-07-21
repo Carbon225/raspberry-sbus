@@ -9,7 +9,7 @@ DecoderFSM::DecoderFSM()
 
 }
 
-sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync, int *missingBytes)
+sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync)
 {
     if (hadDesync)
         *hadDesync = false;
@@ -34,7 +34,11 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync, int *mi
                 {
                     if (verifyPacket() == SBUS_OK &&
                         decodePacket() == SBUS_OK)
+                    {
+                        if (hadDesync)
+                            *hadDesync = false;
                         notifyCallback();
+                    }
 
                     else if (hadDesync)
                         *hadDesync = true;
@@ -45,9 +49,6 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesync, int *mi
                 break;
         }
     }
-
-    if (missingBytes)
-        *missingBytes = SBUS_PACKET_SIZE - _packetPos;
 
     return SBUS_OK;
 }
