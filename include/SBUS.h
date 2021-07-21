@@ -17,6 +17,8 @@ public:
 
     sbus_err_t uninstall();
 
+    sbus_err_t setLowLatencyMode(bool enable);
+
     sbus_err_t onPacket(sbus_packet_cb cb);
 
     sbus_err_t read();

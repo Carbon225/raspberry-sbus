@@ -5,6 +5,7 @@ add_library(libsbus STATIC
         src/SBUS.cpp
         src/sbus_driver.c
         src/DecoderFSM.cpp
+        src/sbus_low_latency.c
 )
 
 target_include_directories(libsbus PUBLIC include)

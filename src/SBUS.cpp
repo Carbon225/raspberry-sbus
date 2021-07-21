@@ -1,5 +1,5 @@
 #include "SBUS.h"
-#include <cstdio>
+#include "sbus_low_latency.h"
 #include <termios.h>
 
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)
@@ -22,6 +22,11 @@ sbus_err_t SBUS::install(const char *path, bool blocking, uint8_t timeout)
 sbus_err_t SBUS::uninstall()
 {
     return _fd < 0 ? SBUS_OK : sbus_uninstall(&_fd);
+}
+
+sbus_err_t SBUS::setLowLatencyMode(bool enable)
+{
+    return _fd < 0 ? SBUS_FAIL : sbus_set_low_latency(_fd, enable);
 }
 
 sbus_err_t SBUS::onPacket(sbus_packet_cb cb)

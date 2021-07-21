@@ -32,14 +32,14 @@ int main()
 
     sbus.onPacket(onPacket);
 
-    sbus_err_t err = sbus.install("/dev/ttyAMA0", false);
+    sbus_err_t err = sbus.install("/dev/ttyAMA0", false);  // false for non-blocking
     if (err != SBUS_OK)
     {
         fprintf(stderr, "SBUS install error: %d\n\r", err);
         return err;
     }
 
-    // non-blocking mode, read will poll the serial port
+    // non-blocking mode, read() will check if any data is available and return immediately
     while ((err = sbus.read()) != SBUS_FAIL)
     {
         // desync means a packet was misaligned and not received properly
@@ -52,8 +52,8 @@ int main()
         time_t now = time(nullptr);
 
         /*
-         * receiving happens independently so we can do other things
-         * here we send a packet every second
+         * Receiving happens independently so we can do other things.
+         * Here we send a packet every second.
          */
         if (now > lastWrite)
         {
