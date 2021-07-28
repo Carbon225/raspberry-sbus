@@ -2,8 +2,9 @@
 #define RPISBUS_DECODER_FSM_H
 
 #include <cstdint>
-#include "sbus/packet.h"
 #include "sbus_driver.h"
+
+typedef void (*sbus_packet_cb)(sbus_packet_t);
 
 class DecoderFSM
 {

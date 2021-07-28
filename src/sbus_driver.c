@@ -6,18 +6,18 @@
 #include <asm/ioctls.h>
 #include <sys/ioctl.h>
 
-sbus_err_t sbus_decode(const uint8_t packet[],
-                       uint16_t channels[],
-                       uint8_t *opt)
+sbus_err_t sbus_decode(const uint8_t buf[],
+                       sbus_packet_t *packet)
 {
-    if (!packet || !channels || !opt) {
+    if (!packet || !buf) {
         return SBUS_ERR_INVALID_ARG;
     }
-    if (*packet != SBUS_HEADER || packet[24] != SBUS_END) {
+    if (buf[0] != SBUS_HEADER || buf[24] != SBUS_END) {
         return SBUS_FAIL;
     }
 
-    const uint8_t *payload = packet + 1;
+    uint16_t *channels = packet->channels;
+    const uint8_t *payload = buf + 1;
     channels[0]  = (uint16_t)((payload[0]    | payload[1] << 8)                          & 0x07FF);
     channels[1]  = (uint16_t)((payload[1] >> 3 | payload[2] << 5)                        & 0x07FF);
     channels[2]  = (uint16_t)((payload[2] >> 6 | payload[3] << 2 | payload[4] << 10)     & 0x07FF);
@@ -35,24 +35,29 @@ sbus_err_t sbus_decode(const uint8_t packet[],
     channels[14] = (uint16_t)((payload[19] >> 2 | payload[20] << 6)                      & 0x07FF);
     channels[15] = (uint16_t)((payload[20] >> 5 | payload[21] << 3)                      & 0x07FF);
 
-    *opt = packet[23] & 0xf;
+    uint8_t opt = buf[23] & 0xf;
+    packet->ch17      = opt & SBUS_OPT_C17;
+    packet->ch18      = opt & SBUS_OPT_C18;
+    packet->failsafe  = opt & SBUS_OPT_FS;
+    packet->frameLost = opt & SBUS_OPT_FL;
 
     return SBUS_OK;
 }
 
-sbus_err_t sbus_encode(uint8_t packet[25],
-                       const uint16_t channels[16],
-                       uint8_t opt)
+sbus_err_t sbus_encode(uint8_t buf[],
+                       const sbus_packet_t *packet)
 {
-    if (!packet || !channels) {
+    if (!packet || !buf) {
         return SBUS_ERR_INVALID_ARG;
     }
 
-    packet[0] = SBUS_HEADER;
-    packet[24] = SBUS_END;
+    const uint16_t *channels = packet->channels;
 
-    packet[1] = channels[0] & 0xff;
-    packet[2] = channels[0] >> 8 & 0b111;
+    buf[0] = SBUS_HEADER;
+    buf[24] = SBUS_END;
+
+    buf[1] = channels[0] & 0xff;
+    buf[2] = channels[0] >> 8 & 0b111;
     int currentByte = 2;
     int usedBits = 3; // from LSB
 
@@ -62,7 +67,7 @@ sbus_err_t sbus_encode(uint8_t packet[25],
         for (int bitsWritten = 0; bitsWritten < 11;)
         {
             // strip written bits, shift over used bits
-            packet[currentByte] |= channels[ch] >> bitsWritten << usedBits & 0xff;
+            buf[currentByte] |= channels[ch] >> bitsWritten << usedBits & 0xff;
 
             int hadToWrite = 11 - bitsWritten;
             int couldWrite = 8 - usedBits;
@@ -83,21 +88,33 @@ sbus_err_t sbus_encode(uint8_t packet[25],
         }
     }
 
-    packet[23] = opt;
+    buf[23] = 0;
+
+    if (packet->ch17)
+        buf[23] |= SBUS_OPT_C17;
+
+    if (packet->ch18)
+        buf[23] |= SBUS_OPT_C18;
+
+    if (packet->failsafe)
+        buf[23] |= SBUS_OPT_FS;
+
+    if (packet->frameLost)
+        buf[23] |= SBUS_OPT_FL;
 
     return SBUS_OK;
 }
 
-sbus_err_t sbus_install(int *fd, const char *path, int blocking, uint8_t timeout)
+int sbus_install(const char path[], bool blocking, uint8_t timeout)
 {
-    *fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
-    if (*fd == -1)
+    int fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
+    if (fd < 0)
     {
         return SBUS_ERR_OPEN;
     }
 
     struct termios2 options;
-    if (ioctl(*fd, TCGETS2, &options) != 0)
+    if (ioctl(fd, TCGETS2, &options))
     {
         return SBUS_ERR_TCGETS2;
     }
@@ -127,31 +144,33 @@ sbus_err_t sbus_install(int *fd, const char *path, int blocking, uint8_t timeout
     options.c_cflag |= BOTHER;
     options.c_ispeed = options.c_ospeed = SBUS_BAUD;
 
-    if (ioctl(*fd, TCSETS2, &options) != 0)
+    if (ioctl(fd, TCSETS2, &options))
     {
         return SBUS_ERR_TCSETS2;
     }
 
-    return SBUS_OK;
+    return fd;
 }
 
-sbus_err_t sbus_uninstall(const int *fd)
+sbus_err_t sbus_uninstall(int fd)
 {
-    if (*fd)
-        close(*fd);
+    return close(fd);
 }
 
-int sbus_read(const int *fd, uint8_t *out, int bufSize)
+int sbus_read(int fd, uint8_t buf[], int bufSize)
 {
-    return read(*fd, out, bufSize);
+    return read(fd, buf, bufSize);
 }
 
-sbus_err_t sbus_write(const int *fd, const uint16_t *channels, uint8_t opt)
+sbus_err_t sbus_write(int fd, const sbus_packet_t *packet)
 {
-    uint8_t packet[SBUS_PACKET_SIZE] = { 0 };
-    sbus_encode(packet, channels, opt);
+    if (!packet)
+        return SBUS_ERR_INVALID_ARG;
 
-    if (write(*fd, packet, SBUS_PACKET_SIZE) != SBUS_PACKET_SIZE)
+    uint8_t buf[SBUS_PACKET_SIZE] = { 0 };
+    sbus_encode(buf, packet);
+
+    if (write(fd, packet, SBUS_PACKET_SIZE) != SBUS_PACKET_SIZE)
     {
         return SBUS_FAIL;
     }

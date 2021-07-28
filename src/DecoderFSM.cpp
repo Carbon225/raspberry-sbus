@@ -77,18 +77,7 @@ sbus_err_t DecoderFSM::verifyPacket()
 
 sbus_err_t DecoderFSM::decodePacket()
 {
-    uint8_t opt = 0;
-    sbus_err_t ret = sbus_decode(_packetBuf, _lastPacket.channels, &opt);
-
-    if (ret)
-        return ret;
-
-    _lastPacket.ch17 = (bool) (opt & SBUS_OPT_C17);
-    _lastPacket.ch18 = (bool) (opt & SBUS_OPT_C18);
-    _lastPacket.failsafe = (bool) (opt & SBUS_OPT_FS);
-    _lastPacket.frameLost = (bool) (opt & SBUS_OPT_FL);
-
-    return SBUS_OK;
+    return sbus_decode(_packetBuf, &_lastPacket);
 }
 
 bool DecoderFSM::notifyCallback()
@@ -106,5 +95,5 @@ const sbus_packet_t& DecoderFSM::lastPacket() const
 sbus_err_t DecoderFSM::onPacket(sbus_packet_cb cb)
 {
     _packetCb = cb;
-    return 0;
+    return SBUS_OK;
 }

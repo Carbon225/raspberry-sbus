@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include "sbus_driver.h"
-#include "sbus/packet.h"
 #include "sbus/DecoderFSM.h"
 
 class SBUS
@@ -13,7 +12,7 @@ public:
 
     virtual ~SBUS();
 
-    sbus_err_t install(const char *path, bool blocking, uint8_t timeout = 0);
+    sbus_err_t install(const char path[], bool blocking, uint8_t timeout = 0);
 
     sbus_err_t uninstall();
 
