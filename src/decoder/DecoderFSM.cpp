@@ -1,4 +1,5 @@
 #include "sbus/DecoderFSM.h"
+#include "sbus/sbus_driver.h"
 
 DecoderFSM::DecoderFSM()
         : _state(State::WAIT_FOR_HEADER)

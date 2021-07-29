@@ -1,4 +1,5 @@
 #include "SBUS.h"
+#include "sbus/sbus_driver.h"
 #include "sbus/sbus_low_latency.h"
 
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)

@@ -7,32 +7,12 @@ extern "C" {
 
 #ifdef __cplusplus
 #include <cstdint>
-#include <cstdbool>
 #else
 #include <stdint.h>
 #include <stdbool.h>
 #endif
 
-#include "sbus/sbus_spec.h"
-
-typedef enum
-{
-    SBUS_OK = 0,
-    SBUS_ERR_OPEN = -1,
-    SBUS_ERR_TCGETS2 = -2,
-    SBUS_ERR_TCSETS2 = -3,
-    SBUS_FAIL = -4,
-    SBUS_ERR_INVALID_ARG = -5,
-    SBUS_ERR_DESYNC = -6,
-} sbus_err_t;
-
-typedef struct
-{
-    uint16_t channels[SBUS_NUM_CHANNELS];
-    bool ch17, ch18;
-    bool failsafe;
-    bool frameLost;
-} sbus_packet_t;
+#include "sbus/sbus_defs.h"
 
 sbus_err_t sbus_decode(const uint8_t buf[SBUS_PACKET_SIZE],
                        sbus_packet_t *packet);

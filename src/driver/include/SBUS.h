@@ -2,7 +2,7 @@
 #define RPISBUS_SBUS_H
 
 #include <cstdint>
-#include "sbus/sbus_driver.h"
+#include "sbus/sbus_defs.h"
 #include "sbus/DecoderFSM.h"
 
 class SBUS
