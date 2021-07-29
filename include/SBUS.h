@@ -8,9 +8,9 @@
 class SBUS
 {
 public:
-    SBUS();
+    SBUS() noexcept;
 
-    virtual ~SBUS();
+    virtual ~SBUS() noexcept;
 
     sbus_err_t install(const char path[], bool blocking, uint8_t timeout = 0);
 

@@ -4,11 +4,11 @@
 
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)
 
-SBUS::SBUS()
+SBUS::SBUS() noexcept
     : _fd(-1)
 {}
 
-SBUS::~SBUS()
+SBUS::~SBUS() noexcept
 {
     uninstall();
 }
