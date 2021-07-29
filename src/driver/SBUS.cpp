@@ -1,5 +1,5 @@
 #include "SBUS.h"
-#include "sbus_low_latency.h"
+#include "sbus/sbus_low_latency.h"
 #include <termios.h>
 
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)

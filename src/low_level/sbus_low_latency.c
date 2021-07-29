@@ -1,4 +1,4 @@
-#include "sbus_low_latency.h"
+#include "sbus/sbus_low_latency.h"
 
 #ifndef SBUS_HAS_LOW_LATENCY_MODE
 
