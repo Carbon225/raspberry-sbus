@@ -1,6 +1,5 @@
 #include "SBUS.h"
 #include "sbus/sbus_low_latency.h"
-#include <termios.h>
 
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)
 
@@ -49,11 +48,6 @@ sbus_err_t SBUS::read()
 
     bool hadDesync = false;
     _decoder.feed(readBuf, nRead, &hadDesync);
-
-    if (hadDesync)
-    {
-        tcflush(_fd, TCIFLUSH);
-    }
 
     return hadDesync ? SBUS_ERR_DESYNC : SBUS_OK;
 }
