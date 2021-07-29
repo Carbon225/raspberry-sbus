@@ -22,6 +22,7 @@ private:
     {
         WAIT_FOR_HEADER,
         PACKET,
+        HEADER_SKIP,
     } _state;
 
     uint8_t _packetBuf[SBUS_PACKET_SIZE];
