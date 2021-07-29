@@ -119,27 +119,59 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
         return SBUS_ERR_TCGETS2;
     }
 
-    options.c_cflag |= PARENB;
-    options.c_cflag |= CSTOPB;
-    options.c_cflag |= CS8;
-    options.c_cflag &= ~CRTSCTS;
-    options.c_cflag |= CREAD | CLOCAL;
+    // sbus options
+    // see man termios(3)
 
-    options.c_lflag &= ~ICANON;
-    options.c_lflag &= ~ECHO;
-    options.c_lflag &= ~ECHOE;
-    options.c_lflag &= ~ECHONL;
-    options.c_lflag &= ~ISIG;
+    options.c_cflag |= PARENB;  // enable parity
+    options.c_cflag &= ~PARODD; // even parity
+    options.c_cflag |= CSTOPB;  // enable 2 stop bits
+    options.c_cflag &= ~CSIZE;  // clear character size mask
+    options.c_cflag |= CS8;     // 8 bit characters
+    options.c_cflag &= ~CRTSCTS;  // disable hardware flow control
+    options.c_cflag |= CREAD;   // enable receiver
+    options.c_cflag |= CLOCAL;  // ignore modem lines
 
-    options.c_iflag &= ~(IXON | IXOFF | IXANY);
-    options.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL);
+    options.c_lflag &= ~ICANON;  // receive characters as they come in
+    options.c_lflag &= ~ECHO;    // do not echo
+    options.c_lflag &= ~ISIG;    // do not generate signals
+    options.c_lflag &= ~IEXTEN;  // disable implementation-defined processing
 
-    options.c_oflag &= ~OPOST;
-    options.c_oflag &= ~ONLCR;
+    options.c_iflag &= ~(IXON | IXOFF | IXANY);  // disable XON/XOFF flow control
+    options.c_iflag |= IGNBRK;   // ignore BREAK condition
+    options.c_iflag |= INPCK;    // enable parity checking
+    options.c_iflag |= IGNPAR;   // ignore framing and parity errors
+    options.c_iflag &= ~ISTRIP;  // do not strip off 8th bit
+    options.c_iflag &= ~INLCR;   // do not translate NL to CR
+    options.c_iflag &= ~ICRNL;   // do not translate CR to NL
+    options.c_iflag &= ~IGNCR;   // do not ignore CR
 
-    options.c_cc[VTIME] = timeout;
-    options.c_cc[VMIN] = timeout == 0 ? SBUS_PACKET_SIZE : 0;
+    options.c_oflag &= ~OPOST;  // disable implementation-defined processing
+    options.c_oflag &= ~ONLCR;  // do not map NL to CR-NL
+    options.c_oflag &= ~OCRNL;  // do not map CR to NL
+    options.c_oflag &= ~(ONOCR | ONLRET);  // output CR like a normal person
+    options.c_oflag &= ~OFILL;  // no fill characters
 
+    // set timeouts
+    if (blocking && timeout == 0)
+    {
+        // wait for at least 1 byte
+        options.c_cc[VTIME] = 0;
+        options.c_cc[VMIN] = 1;
+    }
+    else if (blocking) // timeout > 0
+    {
+        // wait for at least 1 byte or timeout
+        options.c_cc[VTIME] = timeout;
+        options.c_cc[VMIN] = 0;
+    }
+    else // !blocking
+    {
+        // non-blocking
+        options.c_cc[VTIME] = 0;
+        options.c_cc[VMIN] = 0;
+    }
+
+    // set SBUS baud
     options.c_cflag &= ~CBAUD;
     options.c_cflag |= BOTHER;
     options.c_ispeed = options.c_ospeed = SBUS_BAUD;
