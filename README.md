@@ -5,8 +5,7 @@ You can use the built-in UART on the pi or a USB-Serial adapter.
 For FTDI adapters use `setLowLatencyMode(true)`.
 
 Also, don't forget to use an inverter to invert the SBUS signal!
-Something like this works well. I use 10k resistors.
-https://electronicspost.com/explain-the-logic-not-gate-or-inverter-and-its-operation-with-truth-table/
+Something like [this](https://electronicspost.com/explain-the-logic-not-gate-or-inverter-and-its-operation-with-truth-table/) works well. I use 10k resistors.
 
 Most receivers use 5V so be careful when plugging directly into the GPIOs on the pi and use a level converter.
 
@@ -74,9 +73,9 @@ In blocking mode `read` will block and wait for data to arrive while non-blockin
 - Create `sbus_packet_t myPacket` object and populate its fields
 - `sbus.write(myPacket)` to send an SBUS packet
 
-Look at examples folder for more.
+Look at [examples](https://github.com/Carbon225/raspberry-sbus/tree/master/examples) folder for more.
 
 ## Low latency mode
 FTDI adapters have weird buffering that makes packets send in batches and not right after calling `write()`.
 Enabling low latency mode fixes this by doing some magic even I don't understand.
-Credit goes to https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp.
+Credit goes to [https://github.com/projectgus/hairless-midiserial](https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp).
