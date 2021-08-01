@@ -18,7 +18,7 @@ sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
 #include <asm/ioctls.h>
 #include <stdio.h>
 
-sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
+enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
 {
     struct serial_struct ser_info;
     int err = ioctl(fd, TIOCGSERIAL, &ser_info);

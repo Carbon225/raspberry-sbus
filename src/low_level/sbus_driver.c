@@ -88,7 +88,7 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
     return fd;
 }
 
-sbus_err_t sbus_uninstall(int fd)
+enum sbus_err_t sbus_uninstall(int fd)
 {
     return close(fd);
 }
@@ -100,7 +100,7 @@ int sbus_read(int fd, uint8_t buf[], int bufSize)
     return read(fd, buf, bufSize);
 }
 
-sbus_err_t sbus_write(int fd, const uint8_t packet[])
+enum sbus_err_t sbus_write(int fd, const uint8_t packet[])
 {
     if (!packet)
         return SBUS_ERR_INVALID_ARG;

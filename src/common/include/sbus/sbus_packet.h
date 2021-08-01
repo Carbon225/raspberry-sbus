@@ -10,12 +10,12 @@
 
 #include "sbus/sbus_spec.h"
 
-typedef struct
+struct sbus_packet_t
 {
     uint16_t channels[SBUS_NUM_CHANNELS];
     bool ch17, ch18;
     bool failsafe;
     bool frameLost;
-} sbus_packet_t;
+};
 
 #endif

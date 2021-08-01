@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency);
+enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency);
 
 #ifdef __cplusplus
 }

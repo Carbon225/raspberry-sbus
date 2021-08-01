@@ -1,7 +1,7 @@
 #include "sbus/packet_decoder.h"
 
-sbus_err_t sbus_decode(const uint8_t buf[],
-                       sbus_packet_t *packet)
+enum sbus_err_t sbus_decode(const uint8_t buf[],
+                            struct sbus_packet_t *packet)
 {
     if (!packet || !buf) {
         return SBUS_ERR_INVALID_ARG;
@@ -38,8 +38,8 @@ sbus_err_t sbus_decode(const uint8_t buf[],
     return SBUS_OK;
 }
 
-sbus_err_t sbus_encode(uint8_t buf[],
-                       const sbus_packet_t *packet)
+enum sbus_err_t sbus_encode(uint8_t buf[],
+                            const struct sbus_packet_t *packet)
 {
     if (!packet || !buf) {
         return SBUS_ERR_INVALID_ARG;
