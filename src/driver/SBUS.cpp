@@ -1,6 +1,7 @@
 #include "SBUS.h"
 #include "sbus/sbus_driver.h"
 #include "sbus/sbus_low_latency.h"
+#include "sbus/packet_decoder.h"
 
 #define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)
 
@@ -55,7 +56,11 @@ sbus_err_t SBUS::read()
 
 sbus_err_t SBUS::write(sbus_packet_t packet)
 {
-    return sbus_write(_fd, &packet);
+    uint8_t buf[SBUS_PACKET_SIZE];
+    sbus_err_t err = sbus_encode(buf, &packet);
+    if (err)
+        return err;
+    return sbus_write(_fd, buf);
 }
 
 uint16_t SBUS::channel(int num) const

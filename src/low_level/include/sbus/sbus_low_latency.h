@@ -1,11 +1,11 @@
 #ifndef RPISBUS_SBUS_LOW_LATENCY_H
 #define RPISBUS_SBUS_LOW_LATENCY_H
 
-#include "sbus/sbus_defs.h"
-
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif
+
+#include "sbus/sbus_error.h"
 
 // compiler flag to disable low latency mode
 #ifndef SBUS_DISABLE_LOW_LATENCY_MODE

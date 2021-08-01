@@ -2,7 +2,8 @@
 #define RPISBUS_DECODER_FSM_H
 
 #include <cstdint>
-#include "sbus/sbus_defs.h"
+#include "sbus/sbus_error.h"
+#include "sbus/sbus_packet.h"
 
 typedef void (*sbus_packet_cb)(sbus_packet_t);
 
