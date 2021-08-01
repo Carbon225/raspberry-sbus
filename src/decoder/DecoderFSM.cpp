@@ -10,13 +10,13 @@ DecoderFSM::DecoderFSM()
 
 }
 
-sbus_err_t DecoderFSM::feed(const uint8_t buf[], int n, bool *hadDesyncOut)
+sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut)
 {
     bool hadDesync = false;
 
     int headerByte = -1;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < bufSize; i++)
     {
         switch (_state)
         {
