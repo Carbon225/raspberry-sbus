@@ -95,6 +95,8 @@ sbus_err_t sbus_uninstall(int fd)
 
 int sbus_read(int fd, uint8_t buf[], int bufSize)
 {
+    if (!buf)
+        return SBUS_ERR_INVALID_ARG;
     return read(fd, buf, bufSize);
 }
 
