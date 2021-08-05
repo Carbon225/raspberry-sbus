@@ -45,6 +45,10 @@ enum sbus_err_t sbus_encode(uint8_t buf[],
         return SBUS_ERR_INVALID_ARG;
     }
 
+    // initialize to 0
+    for (int i = 0; i < SBUS_PACKET_SIZE; ++i)
+        buf[i] = 0;
+
     const uint16_t *channels = packet->channels;
 
     buf[0] = SBUS_HEADER;

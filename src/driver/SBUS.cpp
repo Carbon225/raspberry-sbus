@@ -54,7 +54,7 @@ sbus_err_t SBUS::read()
     return hadDesync ? SBUS_ERR_DESYNC : SBUS_OK;
 }
 
-sbus_err_t SBUS::write(sbus_packet_t packet)
+sbus_err_t SBUS::write(const sbus_packet_t &packet)
 {
     uint8_t buf[SBUS_PACKET_SIZE];
     sbus_err_t err = sbus_encode(buf, &packet);
