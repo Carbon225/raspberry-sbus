@@ -1,0 +1,3 @@
+add_executable(test_encode_decode encode_decode.cpp)
+target_link_libraries(test_encode_decode libsbus)
+add_test(NAME encode_decode COMMAND test_encode_decode)
