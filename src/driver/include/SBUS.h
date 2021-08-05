@@ -44,7 +44,7 @@ public:
     /// Called after install().
     /// \param packet The packet to send
     /// \return Error code or SBUS_OK
-    sbus_err_t write(sbus_packet_t packet);
+    sbus_err_t write(const sbus_packet_t &packet);
 
     /// Get last known value of a channel.
     /// \param num Channel number 0 to 15
