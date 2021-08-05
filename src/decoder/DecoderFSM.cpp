@@ -7,7 +7,8 @@ DecoderFSM::DecoderFSM()
         , _lastPacket({0})
         , _packetCb(nullptr)
 {
-
+    _lastPacket.failsafe = true;
+    _lastPacket.frameLost = true;
 }
 
 sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut)
