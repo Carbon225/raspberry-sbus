@@ -60,7 +60,7 @@ sbus_err_t SBUS::write(sbus_packet_t packet)
     sbus_err_t err = sbus_encode(buf, &packet);
     if (err)
         return err;
-    return sbus_write(_fd, buf);
+    return sbus_write(_fd, buf, SBUS_PACKET_SIZE);
 }
 
 uint16_t SBUS::channel(int num) const

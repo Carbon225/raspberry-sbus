@@ -100,12 +100,12 @@ int sbus_read(int fd, uint8_t buf[], int bufSize)
     return read(fd, buf, bufSize);
 }
 
-enum sbus_err_t sbus_write(int fd, const uint8_t packet[])
+enum sbus_err_t sbus_write(int fd, const uint8_t buf[], int count)
 {
-    if (!packet)
+    if (!buf)
         return SBUS_ERR_INVALID_ARG;
 
-    if (write(fd, packet, SBUS_PACKET_SIZE) != SBUS_PACKET_SIZE)
+    if (write(fd, buf, count) != count)
     {
         return SBUS_FAIL;
     }

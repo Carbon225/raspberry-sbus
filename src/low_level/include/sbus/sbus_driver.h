@@ -18,7 +18,7 @@ extern "C" {
 enum sbus_err_t sbus_uninstall(int fd);
 
             int sbus_read(int fd, uint8_t buf[], int bufSize);
-enum sbus_err_t sbus_write(int fd, const uint8_t packet[]);
+enum sbus_err_t sbus_write(int fd, const uint8_t buf[], int count);
 
 #ifdef __cplusplus
 }
