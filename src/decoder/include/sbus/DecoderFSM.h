@@ -5,7 +5,7 @@
 #include "sbus/sbus_error.h"
 #include "sbus/sbus_packet.h"
 
-typedef void (*sbus_packet_cb)(sbus_packet_t);
+typedef void (*sbus_packet_cb)(const sbus_packet_t&);
 
 class DecoderFSM
 {

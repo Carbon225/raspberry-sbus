@@ -15,7 +15,7 @@ using namespace std::chrono_literals;
 
 static SBUS sbus;
 
-static void onPacket(sbus_packet_t packet)
+static void onPacket(const sbus_packet_t &packet)
 {
     static auto lastPrint = steady_clock::now();
     auto now = steady_clock::now();
