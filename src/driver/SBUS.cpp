@@ -3,8 +3,6 @@
 #include "sbus/sbus_low_latency.h"
 #include "sbus/packet_decoder.h"
 
-#define READ_BUF_SIZE (SBUS_PACKET_SIZE * 10)
-
 SBUS::SBUS() noexcept
     : _fd(-1)
 {}
@@ -37,30 +35,27 @@ sbus_err_t SBUS::onPacket(sbus_packet_cb cb)
 
 sbus_err_t SBUS::read()
 {
-    uint8_t readBuf[READ_BUF_SIZE];
-
     if (_fd < 0)
         return SBUS_FAIL;
 
-    int nRead = sbus_read(_fd, readBuf, READ_BUF_SIZE);
+    int nRead = sbus_read(_fd, _readBuf, READ_BUF_SIZE);
 
     // TODO SBUS_OK if timeout, else error
     if (nRead <= 0)
         return SBUS_OK;
 
     bool hadDesync = false;
-    _decoder.feed(readBuf, nRead, &hadDesync);
+    _decoder.feed(_readBuf, nRead, &hadDesync);
 
     return hadDesync ? SBUS_ERR_DESYNC : SBUS_OK;
 }
 
 sbus_err_t SBUS::write(const sbus_packet_t &packet)
 {
-    uint8_t buf[SBUS_PACKET_SIZE];
-    sbus_err_t err = sbus_encode(buf, &packet);
+    sbus_err_t err = sbus_encode(_writeBuf, &packet);
     if (err)
         return err;
-    return sbus_write(_fd, buf, SBUS_PACKET_SIZE);
+    return sbus_write(_fd, _writeBuf, SBUS_PACKET_SIZE);
 }
 
 uint16_t SBUS::channel(int num) const

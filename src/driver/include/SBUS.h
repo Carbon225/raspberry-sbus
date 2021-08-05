@@ -56,8 +56,12 @@ public:
     const sbus_packet_t& lastPacket() const;
 
 private:
+    static constexpr int READ_BUF_SIZE = SBUS_PACKET_SIZE * 10;
+
     int _fd;
     DecoderFSM _decoder;
+    uint8_t _readBuf[READ_BUF_SIZE];
+    uint8_t _writeBuf[SBUS_PACKET_SIZE];
 };
 
 
