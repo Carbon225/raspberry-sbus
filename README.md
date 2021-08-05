@@ -56,7 +56,7 @@ The most common use case is when your main loop does other things and only proce
 - `sbus.install("/path/to/tty", blocking_mode)` to init the serial port
 - `sbus.setLowLatencyMode(true)` if you have an FTDI adapter
 ### Receive
-- Define packet callback `void packetCallback(sbus_packet_t packet) {/* handle packet */}`
+- Define packet callback `void packetCallback(const sbus_packet_t &packet) {/* handle packet */}`
 - Set packet callback with `sbus.onPacket(packetCallback)`
 - Call `sbus.read()` as often as possible to process buffered data from the serial port (non-blocking) or at least once per packet (blocking mode).
 In blocking mode `read` will block and wait for data to arrive while non-blocking mode only checks if any data is available and returns immediately.
