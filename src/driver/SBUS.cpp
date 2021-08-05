@@ -3,7 +3,7 @@
 #include "sbus/sbus_low_latency.h"
 #include "sbus/packet_decoder.h"
 
-#define READ_BUF_SIZE (SBUS_PACKET_SIZE * 2)
+#define READ_BUF_SIZE (SBUS_PACKET_SIZE * 10)
 
 SBUS::SBUS() noexcept
     : _fd(-1)
