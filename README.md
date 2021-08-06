@@ -13,7 +13,7 @@ Most receivers use 5V so be careful when plugging directly into the GPIOs on the
 - Non-blocking and blocking modes
 - Send & Receive
 - All channels from 1 - 16
-- Channels 17 and 18 (whatever they are for)
+- Binary channels 17 and 18
 - Failsafe and frame lost bits
 - Automatic recovery from hardware failures like broken wiring
 - FTDI low latency support
