@@ -1,16 +1,13 @@
 # Raspberry Pi/Linux SBUS Driver
 C++ SBUS library working on the Raspberry Pi and possibly any linux system with a serial port.
 
-To use the built-in UART on the raspberry make sure to use the PL011 (e.g. ttyAMA0) as the mini UART does not support parity.
-By default the first PL011 is connected to bluetooth so you will have to either disable it and set the PL011 as the primary UART or enable additional UARTs (only on RPi 4).
-Refer to https://www.raspberrypi.org/documentation/configuration/uart.md.
-
-It is also possible to use a simple USB-Serial converter.
+You can use the built-in UART on the pi or a USB-Serial adapter.
 For FTDI adapters use `setLowLatencyMode(true)`.
 
 Also, don't forget to use an inverter to invert the SBUS signal!
-Something like this works well. I use 10k resistors.
-https://electronicspost.com/explain-the-logic-not-gate-or-inverter-and-its-operation-with-truth-table/
+Something like [this](https://electronicspost.com/explain-the-logic-not-gate-or-inverter-and-its-operation-with-truth-table/) works well. I use 10k resistors.
+
+Most receivers use 5V so be careful when plugging directly into the GPIOs on the pi and use a level converter.
 
 ## Features:
 - Non-blocking and blocking modes
@@ -50,25 +47,37 @@ You have to call `read` as often as possible to make sure you don't skip any byt
 The most common use case is when your main loop does other things and only processes SBUS packets when one arrives.
 
 ## Usage:
-### Setup
+### Raspberry Pi UART setup
+#### To use built-in UART on Raspberry Pi 3/4
+- `sudo systemctl disable hciuart` - disable bluetooth as we will steal its UART
+- add `dtoverlay=disable-bt` to `/boot/config.txt`
+- reboot and use `/dev/ttyAMA0`
+#### To use additional UARTs only on Raspberry Pi 4
+- add `dtoverlay=uartX` to `/boot/config.txt` where X is 2, 3, 4 or 5 to enable another UART
+- reboot and use `/dev/ttyAMAX` where X is the UART you chose
+
+Look at https://www.raspberrypi.org/documentation/configuration/uart.md for more info.
+
+### The Code
+#### Setup
 - `#include <SBUS.h>`
 - Create `SBUS sbus` object
 - `sbus.install("/path/to/tty", blocking_mode)` to init the serial port
 - `sbus.setLowLatencyMode(true)` if you have an FTDI adapter
-### Receive
+#### Receive
 - Define packet callback `void packetCallback(const sbus_packet_t &packet) {/* handle packet */}`
 - Set packet callback with `sbus.onPacket(packetCallback)`
 - Call `sbus.read()` as often as possible to process buffered data from the serial port (non-blocking) or at least once per packet (blocking mode).
 In blocking mode `read` will block and wait for data to arrive while non-blocking mode only checks if any data is available and returns immediately.
-### Send
+#### Send
 - Create `sbus_packet_t myPacket` object and populate its fields
 - `sbus.write(myPacket)` to send an SBUS packet
 
-Look at examples folder for more.
+Look at [examples](https://github.com/Carbon225/raspberry-sbus/tree/master/examples) folder for more.
 
 ## Low latency mode
 FTDI adapters have weird buffering that makes packets send in batches and not right after calling `write()`.
 Enabling low latency mode fixes this by doing some magic even I don't understand.
-Credit goes to https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp.
+Credit goes to [https://github.com/projectgus/hairless-midiserial](https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp).
 
 Note: only supported on linux.
