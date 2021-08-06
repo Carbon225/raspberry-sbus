@@ -1,18 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-project(rpi_sbus)
+project(rpi_sbus VERSION 2.1.0)
 
-add_library(libsbus STATIC
-        src/SBUS.cpp
-        src/sbus_driver.c
-        src/sbus_low_latency.c
-)
+add_subdirectory(src)
 
-target_include_directories(libsbus PUBLIC include)
-
-# old name for compatibility
-add_library(sbuslib ALIAS libsbus)
-
-# build examples if this is the main project
-if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+# build examples and tests if this is the main project
+if ("${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
     add_subdirectory(examples)
+    include(CTest)
+    add_subdirectory(test)
 endif()

@@ -1,9 +1,11 @@
-#include "sbus_low_latency.h"
+#include "sbus/sbus_low_latency.h"
 
-#ifndef SBUS_HAS_LOW_LATENCY_MODE
+#ifndef __linux__
+
+#warning "Not on linux, low latency mode disabled"
 
 #include <stdio.h>
-sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
+enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
 {
     fprintf(stderr, "Low latency mode not supported on this system.\n");
     return SBUS_FAIL;
@@ -18,7 +20,7 @@ sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
 #include <asm/ioctls.h>
 #include <stdio.h>
 
-sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
+enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
 {
     struct serial_struct ser_info;
     int err = ioctl(fd, TIOCGSERIAL, &ser_info);
@@ -45,4 +47,4 @@ sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
     return SBUS_FAIL;
 }
 
-#endif  // SBUS_HAS_LOW_LATENCY_MODE
+#endif  // __linux__

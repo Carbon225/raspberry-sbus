@@ -1,43 +1,66 @@
-#include <cstdio>
-#include <ctime>
+#include <iostream>
+#include <chrono>
 #include "SBUS.h"
 
-SBUS sbus;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::cin;
+using std::string;
+using std::chrono::steady_clock;
+using namespace std::chrono_literals;
 
-void onPacket(sbus_packet_t packet)
+static SBUS sbus;
+
+static void onPacket(const sbus_packet_t &packet)
 {
-    static time_t lastPrint = time(nullptr);
-    time_t now = time(nullptr);
+    static auto lastPrint = steady_clock::now();
+    auto now = steady_clock::now();
 
-    if (now > lastPrint)
+    if (now - lastPrint > 500ms)
     {
+        for (int i = 0; i < 16; ++i)
+            cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";
+
+        cout << "ch17: " << (packet.ch17 ? "true" : "false") << "\t"
+             << "ch18: " << (packet.ch18 ? "true" : "false");
+
+        if (packet.frameLost)
+            cout << "\tFrame lost";
+
+        if (packet.failsafe)
+            cout << "\tFailsafe active";
+
+        cout << endl;
+
         lastPrint = now;
-        printf("ch1: %u\tch2: %u\tch3: %u\tch4: %u\t"
-               "ch5: %u\tch6: %u\tch7: %u\tch8: %u\t"
-               "ch9: %u\tch10: %u\tch11: %u\tch12: %u\t"
-               "ch13: %u\tch14: %u\tch15: %u\tch16: %u\tch17: %u\tch18: %u%s%s\n\r",
-               packet.channels[0], packet.channels[1], packet.channels[2], packet.channels[3],
-               packet.channels[4], packet.channels[5], packet.channels[6], packet.channels[7],
-               packet.channels[8], packet.channels[9], packet.channels[10], packet.channels[11],
-               packet.channels[12], packet.channels[13], packet.channels[14], packet.channels[15],
-               packet.ch17, packet.ch18,
-               packet.frameLost ? "\tFrame lost" : "",
-               packet.failsafe ? "\tFailsafe active" : "");
     }
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    printf("SBUS blocking receiver example\n\r");
+    cout << "SBUS blocking receiver example" << endl;
+
+    string ttyPath;
+
+    if (argc > 1)
+        ttyPath = argv[1];
+    else
+    {
+        cout << "Enter tty path: ";
+        cin >> ttyPath;
+    }
 
     sbus.onPacket(onPacket);
 
-    sbus_err_t err = sbus.install("/dev/ttyAMA0", true);  // true for blocking mode
+    sbus_err_t err = sbus.install(ttyPath.c_str(), true);  // true for blocking mode
     if (err != SBUS_OK)
     {
-        fprintf(stderr, "SBUS install error: %d\n\r", err);
+        cerr << "SBUS install error: " << err << endl;
         return err;
     }
+
+    cout << "SBUS installed" << endl;
 
     // blocks until data is available
     while ((err = sbus.read()) != SBUS_FAIL)
@@ -45,11 +68,11 @@ int main()
         // desync means a packet was misaligned and not received properly
         if (err == SBUS_ERR_DESYNC)
         {
-            fprintf(stderr, "SBUS desync\n\r");
+            cerr << "SBUS desync" << endl;
         }
     }
 
-    fprintf(stderr, "SBUS error: %d\n\r", err);
+    cerr << "SBUS error: " << err << endl;
 
     return err;
 }

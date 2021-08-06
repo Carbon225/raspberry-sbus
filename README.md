@@ -65,7 +65,7 @@ Look at https://www.raspberrypi.org/documentation/configuration/uart.md for more
 - `sbus.install("/path/to/tty", blocking_mode)` to init the serial port
 - `sbus.setLowLatencyMode(true)` if you have an FTDI adapter
 #### Receive
-- Define packet callback `void packetCallback(sbus_packet_t packet) {/* handle packet */}`
+- Define packet callback `void packetCallback(const sbus_packet_t &packet) {/* handle packet */}`
 - Set packet callback with `sbus.onPacket(packetCallback)`
 - Call `sbus.read()` as often as possible to process buffered data from the serial port (non-blocking) or at least once per packet (blocking mode).
 In blocking mode `read` will block and wait for data to arrive while non-blocking mode only checks if any data is available and returns immediately.
@@ -79,3 +79,5 @@ Look at [examples](https://github.com/Carbon225/raspberry-sbus/tree/master/examp
 FTDI adapters have weird buffering that makes packets send in batches and not right after calling `write()`.
 Enabling low latency mode fixes this by doing some magic even I don't understand.
 Credit goes to [https://github.com/projectgus/hairless-midiserial](https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp).
+
+Note: only supported on linux.
