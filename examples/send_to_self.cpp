@@ -82,15 +82,16 @@ int main(int argc, char **argv)
         {
             lastWrite = now;
 
-            sbus_packet_t packet;
-            packet.ch17 = true;
-            packet.ch18 = false;
-            packet.failsafe = true;
-            packet.frameLost = false;
+            sbus_packet_t packet = {
+                    .ch17 = true,
+                    .ch18 = false,
+                    .failsafe = true,
+                    .frameLost = false,
+            };
 
             for (int i = 0; i < 16; i++)
             {
-                packet.channels[i] = i;
+                packet.channels[i] = i + 1;
             }
 
             // make sure to limit sending frequency, SBUS is not that fast
