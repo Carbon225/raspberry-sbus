@@ -70,3 +70,5 @@ Look at examples folder for more.
 FTDI adapters have weird buffering that makes packets send in batches and not right after calling `write()`.
 Enabling low latency mode fixes this by doing some magic even I don't understand.
 Credit goes to https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp.
+
+Note: only supported on linux.
