@@ -6,6 +6,6 @@ set_property(TARGET libsbus PROPERTY CXX_STANDARD 11)
 add_library(sbuslib ALIAS libsbus)
 
 add_subdirectory(common)
-add_subdirectory(low_level)
+add_subdirectory(tty)
 add_subdirectory(decoder)
 add_subdirectory(driver)
