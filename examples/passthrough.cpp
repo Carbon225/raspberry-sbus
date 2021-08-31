@@ -11,7 +11,7 @@ using std::endl;
 using std::cin;
 using std::string;
 using std::chrono::steady_clock;
-using namespace std::chrono_literals;
+using std::chrono::milliseconds;
 
 static SBUS sbus;
 
@@ -23,7 +23,7 @@ static void onPacket(const sbus_packet_t &packet)
     // retransmit received packet
     sbus.write(packet);
 
-    if (now - lastPrint > 500ms)
+    if (now - lastPrint > milliseconds(500))
     {
         for (int i = 0; i < 16; ++i)
             cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";

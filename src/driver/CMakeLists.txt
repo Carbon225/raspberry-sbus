@@ -1,5 +1,5 @@
 target_sources(libsbus PUBLIC
-        SBUS.cpp
+        "${CMAKE_CURRENT_SOURCE_DIR}/SBUS.cpp"
         )
 
-target_include_directories(libsbus PUBLIC include)
+target_include_directories(libsbus PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

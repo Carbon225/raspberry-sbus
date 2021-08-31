@@ -1,5 +1,5 @@
 #include "SBUS.h"
-#include "sbus/sbus_driver.h"
+#include "sbus/sbus_tty.h"
 #include "sbus/sbus_low_latency.h"
 #include "sbus/packet_decoder.h"
 

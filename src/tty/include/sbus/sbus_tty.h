@@ -1,5 +1,5 @@
-#ifndef RPISBUS_SBUS_DRIVER_H
-#define RPISBUS_SBUS_DRIVER_H
+#ifndef RPISBUS_SBUS_TTY_H
+#define RPISBUS_SBUS_TTY_H
 
 #ifdef __cplusplus
 #include <cstdint>
@@ -24,4 +24,4 @@ enum sbus_err_t sbus_write(int fd, const uint8_t buf[], int count);
 }
 #endif
 
-#endif //RPISBUS_SBUS_DRIVER_H
+#endif // RPISBUS_SBUS_TTY_H
