@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <asm/termbits.h>
-#include <asm/ioctls.h>
 #include <sys/ioctl.h>
 
 #include "sbus/sbus_spec.h"

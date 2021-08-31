@@ -7,7 +7,6 @@
 
 #include <sys/ioctl.h>
 #include <linux/serial.h>
-#include <asm/ioctls.h>
 #include <stdio.h>
 
 enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
