@@ -8,7 +8,7 @@ using std::endl;
 using std::cin;
 using std::string;
 using std::chrono::steady_clock;
-using namespace std::chrono_literals;
+using std::chrono::milliseconds;
 
 static SBUS sbus;
 
@@ -17,7 +17,7 @@ static void onPacket(const sbus_packet_t &packet)
     static auto lastPrint = steady_clock::now();
     auto now = steady_clock::now();
 
-    if (now - lastPrint > 500ms)
+    if (now - lastPrint > milliseconds(500))
     {
         for (int i = 0; i < 16; ++i)
             cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
          * Receiving happens independently so we can do other things.
          * Here we send a packet every second.
          */
-        if (now - lastWrite > 1s)
+        if (now - lastWrite > milliseconds(1000))
         {
             lastWrite = now;
 

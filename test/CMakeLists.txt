@@ -1,3 +1,5 @@
 add_executable(test_encode_decode encode_decode.cpp)
+set_property(TARGET test_encode_decode PROPERTY C_STANDARD 99)
+set_property(TARGET test_encode_decode PROPERTY CXX_STANDARD 11)
 target_link_libraries(test_encode_decode libsbus)
 add_test(NAME encode_decode COMMAND test_encode_decode)
