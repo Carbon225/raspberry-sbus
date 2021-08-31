@@ -1,4 +1,4 @@
-add_executable(test_encode_decode encode_decode.cpp)
+add_executable(test_encode_decode "${CMAKE_CURRENT_SOURCE_DIR}/encode_decode.cpp")
 set_property(TARGET test_encode_decode PROPERTY C_STANDARD 99)
 set_property(TARGET test_encode_decode PROPERTY CXX_STANDARD 11)
 target_link_libraries(test_encode_decode libsbus)

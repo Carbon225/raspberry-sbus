@@ -28,7 +28,7 @@ SBUS protocol specification and original decoding function: https://github.com/b
 
 Example CMakeLists.txt
 ```cmake
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.9)
 project(my-sbus-project)
 
 set(CMAKE_C_STANDARD 99)
