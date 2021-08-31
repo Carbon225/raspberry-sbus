@@ -1,17 +1,7 @@
+#include "sbus/sbus_low_latency_impl.h"
+#ifdef RPISBUS_LOW_LATENCY_IMPL_LINUX
+
 #include "sbus/sbus_low_latency.h"
-
-#ifndef __linux__
-
-#warning "Not on linux, low latency mode disabled"
-
-#include <stdio.h>
-enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
-{
-    fprintf(stderr, "Low latency mode not supported on this system.\n");
-    return SBUS_FAIL;
-}
-
-#else
 
 // thanks to https://github.com/projectgus/hairless-midiserial/blob/add59f04c3b75044f3033f70d5523685b6b9dd0a/src/PortLatency_linux.cpp
 
@@ -47,4 +37,4 @@ enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency)
     return SBUS_FAIL;
 }
 
-#endif  // __linux__
+#endif // RPISBUS_LOW_LATENCY_IMPL_LINUX

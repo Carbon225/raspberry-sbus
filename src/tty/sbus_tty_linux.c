@@ -1,4 +1,7 @@
-#include "sbus/sbus_driver.h"
+#include "sbus/sbus_tty_impl.h"
+#ifdef RPISBUS_TTY_IMPL_LINUX
+
+#include "sbus/sbus_tty.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -112,3 +115,5 @@ enum sbus_err_t sbus_write(int fd, const uint8_t buf[], int count)
 
     return SBUS_OK;
 }
+
+#endif // RPISBUS_TTY_IMPL_LINUX
