@@ -31,6 +31,9 @@ Example CMakeLists.txt
 cmake_minimum_required(VERSION 3.16)
 project(my-sbus-project)
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
+
 add_subdirectory(raspberry-sbus) # relative path to the cloned repo
 
 add_executable(main main.cpp)
