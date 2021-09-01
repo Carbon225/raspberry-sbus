@@ -50,7 +50,7 @@ target_link_libraries(main PUBLIC libsbus)
 ```
 - Open your project in a CMake compatible IDE (CLion, VS, ...)
 - or build manually:
-  - `cmake -B build -S .`
+  - `cmake -B build -S .` <- don't forget the dot
   - `cmake --build build`
   - run with `./build/main`
 
@@ -81,7 +81,7 @@ In blocking mode `read` will block and wait for data to arrive while non-blockin
 - Create `sbus_packet_t myPacket` object and populate its fields
 - `sbus.write(myPacket)` to send an SBUS packet
 
-Look at [examples](https://github.com/Carbon225/raspberry-sbus/tree/master/examples) folder for more.
+Look at [examples](examples) folder for more.
 
 ## Blocking vs. Non-blocking
 In blocking mode the `read` function blocks until some data is available.
