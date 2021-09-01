@@ -20,13 +20,10 @@ Most receivers use 5V so be careful when plugging directly into the GPIOs on the
 
 SBUS protocol specification and original decoding function: https://github.com/bolderflight/SBUS
 
-## Installation
-- Create a CMake project
-- Clone this repo somewhere into your project
-- Add `add_subdirectory(path/to/raspberry-sbus)` to your CMakeLists.txt
-- Link the library to your targets with `target_link_libraries(your_target PUBLIC libsbus)`.
-
-Example CMakeLists.txt
+## Getting started
+- Create an empty project folder
+- `git clone https://github.com/Carbon225/raspberry-sbus` **inside** your project folder
+- Create a `CMakeLists.txt` inside project folder
 ```cmake
 cmake_minimum_required(VERSION 3.9)
 project(my-sbus-project)
@@ -34,20 +31,28 @@ project(my-sbus-project)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 
-add_subdirectory(raspberry-sbus) # relative path to the cloned repo
+# This is what you cloned previously.
+# After this line a libsbus target is available for linking
+add_subdirectory(raspberry-sbus)
 
+# Create a new executable target with a single source file main.cpp
+# and link it with the library
 add_executable(main main.cpp)
 target_link_libraries(main PUBLIC libsbus)
 ```
-
-## Blocking vs. Non-blocking
-In blocking mode the `read` function blocks until some data is available.
-This mode is best used when your code contains a main loop that does not need to process anything when there are no packets.
-You can also create a separate thread for reading.
-
-In non-blocking mode `read` processes only available bytes (or nothing if none are available) and returns immediately.
-You have to call `read` as often as possible to make sure you don't skip any bytes.
-The most common use case is when your main loop does other things and only processes SBUS packets when one arrives.
+- Create `main.cpp` and paste code from one of the [examples](examples)
+- Your project should look like this:
+```
+- project_folder/
+  - CMakeLists.txt
+  - raspberry-sbus/
+  - main.cpp
+```
+- Open your project in a CMake compatible IDE (CLion, VS, ...)
+- or build manually:
+  - `cmake -B build -S .`
+  - `cmake --build build`
+  - run with `./build/main`
 
 ## Usage:
 ### Raspberry Pi UART setup
@@ -77,6 +82,15 @@ In blocking mode `read` will block and wait for data to arrive while non-blockin
 - `sbus.write(myPacket)` to send an SBUS packet
 
 Look at [examples](https://github.com/Carbon225/raspberry-sbus/tree/master/examples) folder for more.
+
+## Blocking vs. Non-blocking
+In blocking mode the `read` function blocks until some data is available.
+This mode is best used when your code contains a main loop that does not need to process anything when there are no packets.
+You can also create a separate thread for reading.
+
+In non-blocking mode `read` processes only available bytes (or nothing if none are available) and returns immediately.
+You have to call `read` as often as possible to make sure you don't skip any bytes.
+The most common use case is when your main loop does other things and only processes SBUS packets when one arrives.
 
 ## Low latency mode
 FTDI adapters have weird buffering that makes packets send in batches and not right after calling `write()`.
