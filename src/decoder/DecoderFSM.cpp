@@ -11,8 +11,12 @@ DecoderFSM::DecoderFSM()
     _lastPacket.frameLost = true;
 }
 
-sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut)
+sbus_err_t DecoderFSM::feed(const uint8_t buf[],
+                            int bufSize,
+                            bool *hadDesyncOut,
+                            bool *gotPacketOut)
 {
+    bool gotPacket = false;
     bool hadDesync = false;
 
     int headerByte = -1;
@@ -50,6 +54,7 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut
                     if (verifyPacket() == SBUS_OK &&
                         decodePacket() == SBUS_OK)
                     {
+                        gotPacket = true;
                         hadDesync = false;  // clear desync if last packet was ok
                         notifyCallback();
 
@@ -106,6 +111,9 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut
 
     if (hadDesyncOut)
         *hadDesyncOut = hadDesync;
+
+    if (gotPacketOut)
+        *gotPacketOut = gotPacket;
 
     return SBUS_OK;
 }

@@ -12,7 +12,7 @@ using std::chrono::milliseconds;
 
 static SBUS sbus;
 
-static void onPacket(const sbus_packet_t &packet)
+static void printPacket(const sbus_packet_t &packet)
 {
     static auto lastPrint = steady_clock::now();
     auto now = steady_clock::now();
@@ -44,14 +44,12 @@ int main(int argc, char **argv)
     string ttyPath;
 
     if (argc > 1)
-        ttyPath = argv[1];
+        ttyPath = argv[argc - 1];
     else
     {
         cout << "Enter tty path: ";
         cin >> ttyPath;
     }
-
-    sbus.onPacket(onPacket);
 
     sbus_err_t err = sbus.install(ttyPath.c_str(), true);  // true for blocking mode
     if (err != SBUS_OK)
@@ -69,6 +67,22 @@ int main(int argc, char **argv)
         if (err == SBUS_ERR_DESYNC)
         {
             cerr << "SBUS desync" << endl;
+        }
+
+        // true if last read received a packet
+        if (sbus.gotPacket())
+        {
+            // A read might actually find multiple packets.
+            // However, since it all happened within a single read() call
+            // we should only care about the most recent packet.
+            // To get a packet just check if the last read()
+            // got a packet and then get that packet with lastPacket()
+
+            // this reference is only valid until the next read()!
+            // do sbus_packet_t packet = sbus.lastPacket()
+            // if you want to use the value later
+            const sbus_packet_t &packet = sbus.lastPacket();
+            printPacket(packet);
         }
     }
 

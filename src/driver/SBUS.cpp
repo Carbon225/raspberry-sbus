@@ -5,6 +5,7 @@
 
 SBUS::SBUS() noexcept
     : _fd(-1)
+    , _lastReadGotPacket(false)
 {}
 
 SBUS::~SBUS() noexcept
@@ -45,7 +46,10 @@ sbus_err_t SBUS::read()
         return SBUS_OK;
 
     bool hadDesync = false;
-    _decoder.feed(_readBuf, nRead, &hadDesync);
+    bool gotPacket = false;
+    _decoder.feed(_readBuf, nRead, &hadDesync, &gotPacket);
+
+    _lastReadGotPacket = gotPacket;
 
     return hadDesync ? SBUS_ERR_DESYNC : SBUS_OK;
 }
@@ -69,4 +73,8 @@ uint16_t SBUS::channel(int num) const
 const sbus_packet_t& SBUS::lastPacket() const
 {
     return _decoder.lastPacket();
+}
+
+bool SBUS::gotPacket() const {
+    return _lastReadGotPacket;
 }

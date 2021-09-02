@@ -12,7 +12,10 @@ class DecoderFSM
 public:
     DecoderFSM();
 
-    sbus_err_t feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut);
+    sbus_err_t feed(const uint8_t buf[],
+                    int bufSize,
+                    bool *hadDesyncOut,
+                    bool *gotPacketOut);
 
     sbus_err_t onPacket(sbus_packet_cb cb);
 

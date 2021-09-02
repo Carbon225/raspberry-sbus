@@ -55,6 +55,10 @@ public:
     /// \return Reference to last received packet
     const sbus_packet_t& lastPacket() const;
 
+    /// Check if last read() processed a packet
+    /// \return true if last call to read() received a new packet, false otherwise
+    bool gotPacket() const;
+
 private:
     static constexpr int READ_BUF_SIZE = SBUS_PACKET_SIZE * 10;
 
@@ -62,6 +66,7 @@ private:
     DecoderFSM _decoder;
     uint8_t _readBuf[READ_BUF_SIZE];
     uint8_t _writeBuf[SBUS_PACKET_SIZE];
+    bool _lastReadGotPacket;
 };
 
 
