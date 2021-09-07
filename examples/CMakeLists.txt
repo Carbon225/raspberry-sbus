@@ -12,3 +12,8 @@ add_executable(passthrough "${CMAKE_CURRENT_SOURCE_DIR}/passthrough.cpp")
 set_property(TARGET passthrough PROPERTY C_STANDARD 99)
 set_property(TARGET passthrough PROPERTY CXX_STANDARD 11)
 target_link_libraries(passthrough PUBLIC libsbus)
+
+add_executable(class_example "${CMAKE_CURRENT_SOURCE_DIR}/class_example.cpp")
+set_property(TARGET class_example PROPERTY C_STANDARD 99)
+set_property(TARGET class_example PROPERTY CXX_STANDARD 11)
+target_link_libraries(class_example PUBLIC libsbus pthread)

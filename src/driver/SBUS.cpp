@@ -30,7 +30,7 @@ sbus_err_t SBUS::setLowLatencyMode(bool enable)
 
 sbus_err_t SBUS::onPacket(sbus_packet_cb cb)
 {
-    return _decoder.onPacket(cb);
+    return _decoder.onPacket(std::move(cb));
 }
 
 sbus_err_t SBUS::read()

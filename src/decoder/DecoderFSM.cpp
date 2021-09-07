@@ -5,7 +5,7 @@ DecoderFSM::DecoderFSM()
         : _state(State::WAIT_FOR_HEADER)
         , _packetPos(0)
         , _lastPacket({0})
-        , _packetCb(nullptr)
+        , _packetCb()
 {
     _lastPacket.failsafe = true;
     _lastPacket.frameLost = true;
@@ -128,7 +128,7 @@ bool DecoderFSM::notifyCallback()
 {
     if (_packetCb)
         _packetCb(_lastPacket);
-    return _packetCb;
+    return (bool) _packetCb;
 }
 
 const sbus_packet_t& DecoderFSM::lastPacket() const
@@ -138,6 +138,6 @@ const sbus_packet_t& DecoderFSM::lastPacket() const
 
 sbus_err_t DecoderFSM::onPacket(sbus_packet_cb cb)
 {
-    _packetCb = cb;
+    _packetCb = std::move(cb);
     return SBUS_OK;
 }
