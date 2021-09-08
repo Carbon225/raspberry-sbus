@@ -17,3 +17,8 @@ add_executable(class_example "${CMAKE_CURRENT_SOURCE_DIR}/class_example.cpp")
 set_property(TARGET class_example PROPERTY C_STANDARD 99)
 set_property(TARGET class_example PROPERTY CXX_STANDARD 11)
 target_link_libraries(class_example PUBLIC libsbus pthread)
+
+add_executable(thread_example "${CMAKE_CURRENT_SOURCE_DIR}/thread_example.cpp")
+set_property(TARGET thread_example PROPERTY C_STANDARD 99)
+set_property(TARGET thread_example PROPERTY CXX_STANDARD 11)
+target_link_libraries(thread_example PUBLIC libsbus)
