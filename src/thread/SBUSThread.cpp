@@ -11,6 +11,7 @@ void SBUSThread::onPacket(const sbus_packet_t &packet)
 {
     std::lock_guard<std::mutex> lock(_lastPacketMtx);
     _lastPacket = packet;
+    _gotPacket.notify_all();
 }
 
 sbus_err_t SBUSThread::start(const char *tty)
@@ -35,6 +36,7 @@ sbus_err_t SBUSThread::stop()
         _run.clear();
         _thread.join();
     }
+    _gotPacket.notify_all();
     return _sbus.uninstall();
 }
 
@@ -44,4 +46,11 @@ sbus_packet_t SBUSThread::getLastPacket()
     sbus_packet_t packet = _lastPacket;
     lock.unlock();
     return packet;
+}
+
+sbus_packet_t SBUSThread::getNextPacket()
+{
+    std::unique_lock<std::mutex> lck(_gotPacketMtx);
+    _gotPacket.wait(lck);
+    return getLastPacket();
 }

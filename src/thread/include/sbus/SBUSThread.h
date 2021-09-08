@@ -2,6 +2,7 @@
 #define RPISBUS_SBUS_THREAD
 
 #include <atomic>
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 #include "SBUS.h"
@@ -17,6 +18,8 @@ public:
 
     sbus_packet_t getLastPacket();
 
+    sbus_packet_t getNextPacket();
+
 private:
     void onPacket(const sbus_packet_t &packet);
 
@@ -26,6 +29,8 @@ private:
 
     sbus_packet_t _lastPacket;
     std::mutex _lastPacketMtx;
+    std::mutex _gotPacketMtx;
+    std::condition_variable _gotPacket;
 };
 
 #endif // RPISBUS_SBUS_THREAD
