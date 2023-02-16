@@ -62,7 +62,7 @@ target_link_libraries(main PUBLIC libsbus)
 - reboot and use `/dev/ttyAMA0`
 #### To use additional UARTs only on Raspberry Pi 4
 - add `dtoverlay=uartX` to `/boot/config.txt` where X is 2, 3, 4 or 5 to enable another UART
-- reboot and use `/dev/ttyAMAX` where X is the UART you chose
+- reboot and use `/dev/ttyAMAY` where Y will be assigned sequentially for the new UART
 
 Look at https://www.raspberrypi.org/documentation/configuration/uart.md for more info.
 
