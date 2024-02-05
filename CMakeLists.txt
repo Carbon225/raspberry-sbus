@@ -3,11 +3,11 @@ project(rpi_sbus VERSION 2.1.1)
 
 option(USE_TTY_IMPL_DUMMY "Use dummy implementation of the driver" OFF)
 
-if (USE_TTY_IMPL_DUMMY)
-    add_definitions(-DRPISBUS_TTY_IMPL -DRPISBUS_TTY_IMPL_DUMMY)
-endif()
-
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+if (USE_TTY_IMPL_DUMMY)
+    target_compile_definitions(libsbus PUBLIC RPISBUS_TTY_IMPL RPISBUS_TTY_IMPL_DUMMY)
+endif()
 
 # build examples and tests if this is the main project
 if ("${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
