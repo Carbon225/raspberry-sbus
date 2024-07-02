@@ -12,9 +12,9 @@ class DecoderFSM
 public:
     DecoderFSM();
 
-    rcdriver_err_t feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut);
+    rcdrivers_err_t feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut);
 
-    rcdriver_err_t onPacket(sbus_packet_cb cb);
+    rcdrivers_err_t onPacket(sbus_packet_cb cb);
 
     const sbus_packet_t& lastPacket() const;
 
@@ -32,8 +32,8 @@ private:
     sbus_packet_t _lastPacket;
     sbus_packet_cb _packetCb;
 
-    rcdriver_err_t verifyPacket();
-    rcdriver_err_t decodePacket();
+    rcdrivers_err_t verifyPacket();
+    rcdrivers_err_t decodePacket();
     bool notifyCallback();
 };
 

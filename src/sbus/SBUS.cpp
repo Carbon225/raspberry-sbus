@@ -12,47 +12,47 @@ SBUS::~SBUS() noexcept
     uninstall();
 }
 
-rcdriver_err_t SBUS::install(const char path[], bool blocking, uint8_t timeout)
+rcdrivers_err_t SBUS::install(const char path[], bool blocking, uint8_t timeout)
 {
     _fd = sbus_install(path, blocking, timeout);
-    return _fd < 0 ? RCDRIVER_FAIL : RCDRIVER_OK;
+    return _fd < 0 ? RCDRIVERS_FAIL : RCDRIVERS_OK;
 }
 
-rcdriver_err_t SBUS::uninstall()
+rcdrivers_err_t SBUS::uninstall()
 {
-    return _fd < 0 ? RCDRIVER_OK : sbus_uninstall(_fd);
+    return _fd < 0 ? RCDRIVERS_OK : sbus_uninstall(_fd);
 }
 
-rcdriver_err_t SBUS::setLowLatencyMode(bool enable)
+rcdrivers_err_t SBUS::setLowLatencyMode(bool enable)
 {
-    return _fd < 0 ? RCDRIVER_FAIL : tty_set_low_latency(_fd, enable);
+    return _fd < 0 ? RCDRIVERS_FAIL : tty_set_low_latency(_fd, enable);
 }
 
-rcdriver_err_t SBUS::onPacket(sbus_packet_cb cb)
+rcdrivers_err_t SBUS::onPacket(sbus_packet_cb cb)
 {
     return _decoder.onPacket(cb);
 }
 
-rcdriver_err_t SBUS::read()
+rcdrivers_err_t SBUS::read()
 {
     if (_fd < 0)
-        return RCDRIVER_FAIL;
+        return RCDRIVERS_FAIL;
 
     int nRead = sbus_read(_fd, _readBuf, READ_BUF_SIZE);
 
     // TODO SBUS_OK if timeout, else error
     if (nRead <= 0)
-        return RCDRIVER_OK;
+        return RCDRIVERS_OK;
 
     bool hadDesync = false;
     _decoder.feed(_readBuf, nRead, &hadDesync);
 
-    return hadDesync ? RCDRIVER_ERR_DESYNC : RCDRIVER_OK;
+    return hadDesync ? RCDRIVERS_ERR_DESYNC : RCDRIVERS_OK;
 }
 
-rcdriver_err_t SBUS::write(const sbus_packet_t &packet)
+rcdrivers_err_t SBUS::write(const sbus_packet_t &packet)
 {
-    rcdriver_err_t err = sbus_encode(_writeBuf, &packet);
+    rcdrivers_err_t err = sbus_encode(_writeBuf, &packet);
     if (err)
         return err;
     return sbus_write(_fd, _writeBuf, SBUS_PACKET_SIZE);

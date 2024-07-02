@@ -53,8 +53,8 @@ int main(int argc, char **argv)
 
     sbus.onPacket(onPacket);
 
-    rcdriver_err_t err = sbus.install(ttyPath.c_str(), false);  // false for non-blocking
-    if (err != RCDRIVER_OK)
+    rcdrivers_err_t err = sbus.install(ttyPath.c_str(), false);  // false for non-blocking
+    if (err != RCDRIVERS_OK)
     {
         cerr << "SBUS install error: " << err << endl;
         return err;
@@ -63,10 +63,10 @@ int main(int argc, char **argv)
     cout << "SBUS installed" << endl;
 
     // non-blocking mode, read() will check if any data is available and return immediately
-    while ((err = sbus.read()) != RCDRIVER_FAIL)
+    while ((err = sbus.read()) != RCDRIVERS_FAIL)
     {
         // desync means a packet was misaligned and not received properly
-        if (err == RCDRIVER_ERR_DESYNC)
+        if (err == RCDRIVERS_ERR_DESYNC)
         {
             cerr << "SBUS desync" << endl;
         }

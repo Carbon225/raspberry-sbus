@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-enum rcdriver_err_t tty_set_low_latency(int fd, bool setLowLatency);
+enum rcdrivers_err_t tty_set_low_latency(int fd, bool setLowLatency);
 
 #ifdef __cplusplus
 }

@@ -9,7 +9,7 @@
 #include <linux/serial.h>
 #include <stdio.h>
 
-enum rcdriver_err_t tty_set_low_latency(int fd, bool setLowLatency)
+enum rcdrivers_err_t tty_set_low_latency(int fd, bool setLowLatency)
 {
     struct serial_struct ser_info;
     int err = ioctl(fd, TIOCGSERIAL, &ser_info);
@@ -18,7 +18,7 @@ enum rcdriver_err_t tty_set_low_latency(int fd, bool setLowLatency)
 
     if ((ser_info.flags & ASYNC_LOW_LATENCY) == setLowLatency)
         // mode already set
-        return RCDRIVER_OK;
+        return RCDRIVERS_OK;
 
     if (setLowLatency)
         ser_info.flags |= ASYNC_LOW_LATENCY;
@@ -29,11 +29,11 @@ enum rcdriver_err_t tty_set_low_latency(int fd, bool setLowLatency)
     if (err)
         goto error;
 
-    return RCDRIVER_OK;
+    return RCDRIVERS_OK;
 
     error:
     perror("Could not set low latency mode\n");
-    return RCDRIVER_FAIL;
+    return RCDRIVERS_FAIL;
 }
 
 #endif // RPISBUS_LOW_LATENCY_IMPL_LINUX

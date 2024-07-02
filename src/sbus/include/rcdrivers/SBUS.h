@@ -17,34 +17,34 @@ public:
     /// \param blocking If true, read() will block, else it will return immediately
     /// \param timeout Timeout in deciseconds (10 is 1 second) for read() (only if blocking=true)
     /// \return Error code or SBUS_OK
-    rcdriver_err_t install(const char path[], bool blocking, uint8_t timeout = 0);
+    rcdrivers_err_t install(const char path[], bool blocking, uint8_t timeout = 0);
 
     /// Close the opened tty.
     /// \return Error code or SBUS_OK (closing a closed tty also gives SBUS_OK)
-    rcdriver_err_t uninstall();
+    rcdrivers_err_t uninstall();
 
     /// Enable "low latency mode" which fixes performance on FTDI USB adapters.
     /// Called after install().
     /// \param enable True to enable and false to disable low latency mode
     /// \return Error code or SBUS_OK
-    rcdriver_err_t setLowLatencyMode(bool enable);
+    rcdrivers_err_t setLowLatencyMode(bool enable);
 
     /// Set function to be called when a packet is received.
     /// \param cb Pointer to a function with signature void (sbus_packet_t)
     /// \return Error code or SBUS_OK
-    rcdriver_err_t onPacket(sbus_packet_cb cb);
+    rcdrivers_err_t onPacket(sbus_packet_cb cb);
 
     /// Call to process buffered data.
     /// Called after install().
     /// Has to be called frequently to receive packets.
     /// \return SBUS_ERR_DESYNC signaling a bad packet (not fatal), other error code or SBUS_OK
-    rcdriver_err_t read();
+    rcdrivers_err_t read();
 
     /// Send a packet.
     /// Called after install().
     /// \param packet The packet to send
     /// \return Error code or SBUS_OK
-    rcdriver_err_t write(const sbus_packet_t &packet);
+    rcdrivers_err_t write(const sbus_packet_t &packet);
 
     /// Get last known value of a channel.
     /// \param num Channel number 0 to 15

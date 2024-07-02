@@ -1,13 +1,13 @@
 #include "rcdrivers/sbus/packet_decoder.h"
 
-enum rcdriver_err_t sbus_decode(const uint8_t buf[],
+enum rcdrivers_err_t sbus_decode(const uint8_t buf[],
                                 struct sbus_packet_t *packet)
 {
     if (!packet || !buf) {
-        return RCDRIVER_ERR_INVALID_ARG;
+        return RCDRIVERS_ERR_INVALID_ARG;
     }
     if (buf[0] != SBUS_HEADER || buf[24] != SBUS_END) {
-        return RCDRIVER_FAIL;
+        return RCDRIVERS_FAIL;
     }
 
     uint16_t *channels = packet->channels;
@@ -35,14 +35,14 @@ enum rcdriver_err_t sbus_decode(const uint8_t buf[],
     packet->failsafe  = opt & SBUS_OPT_FS;
     packet->frameLost = opt & SBUS_OPT_FL;
 
-    return RCDRIVER_OK;
+    return RCDRIVERS_OK;
 }
 
-enum rcdriver_err_t sbus_encode(uint8_t buf[],
+enum rcdrivers_err_t sbus_encode(uint8_t buf[],
                                 const struct sbus_packet_t *packet)
 {
     if (!packet || !buf) {
-        return RCDRIVER_ERR_INVALID_ARG;
+        return RCDRIVERS_ERR_INVALID_ARG;
     }
 
     for (int i = 0; i < SBUS_PACKET_SIZE; ++i)
@@ -99,5 +99,5 @@ enum rcdriver_err_t sbus_encode(uint8_t buf[],
     if (packet->frameLost)
         buf[23] |= SBUS_OPT_FL;
 
-    return RCDRIVER_OK;
+    return RCDRIVERS_OK;
 }

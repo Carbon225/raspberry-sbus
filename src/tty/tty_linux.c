@@ -16,13 +16,13 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
     int fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (fd < 0)
     {
-        return RCDRIVER_ERR_OPEN;
+        return RCDRIVERS_ERR_OPEN;
     }
 
     struct termios2 options;
     if (ioctl(fd, TCGETS2, &options))
     {
-        return RCDRIVER_ERR_TCGETS2;
+        return RCDRIVERS_ERR_TCGETS2;
     }
 
     // sbus options
@@ -84,13 +84,13 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
 
     if (ioctl(fd, TCSETS2, &options))
     {
-        return RCDRIVER_ERR_TCSETS2;
+        return RCDRIVERS_ERR_TCSETS2;
     }
 
     return fd;
 }
 
-enum rcdriver_err_t sbus_uninstall(int fd)
+enum rcdrivers_err_t sbus_uninstall(int fd)
 {
     return close(fd);
 }
@@ -98,21 +98,21 @@ enum rcdriver_err_t sbus_uninstall(int fd)
 int sbus_read(int fd, uint8_t buf[], int bufSize)
 {
     if (!buf)
-        return RCDRIVER_ERR_INVALID_ARG;
+        return RCDRIVERS_ERR_INVALID_ARG;
     return read(fd, buf, bufSize);
 }
 
-enum rcdriver_err_t sbus_write(int fd, const uint8_t buf[], int count)
+enum rcdrivers_err_t sbus_write(int fd, const uint8_t buf[], int count)
 {
     if (!buf)
-        return RCDRIVER_ERR_INVALID_ARG;
+        return RCDRIVERS_ERR_INVALID_ARG;
 
     if (write(fd, buf, count) != count)
     {
-        return RCDRIVER_FAIL;
+        return RCDRIVERS_FAIL;
     }
 
-    return RCDRIVER_OK;
+    return RCDRIVERS_OK;
 }
 
 #endif // RPISBUS_TTY_IMPL_LINUX

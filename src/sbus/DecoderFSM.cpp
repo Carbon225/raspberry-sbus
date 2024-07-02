@@ -11,7 +11,7 @@ DecoderFSM::DecoderFSM()
     _lastPacket.frameLost = true;
 }
 
-rcdriver_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut)
+rcdrivers_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut)
 {
     bool hadDesync = false;
 
@@ -47,8 +47,8 @@ rcdriver_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyn
 
                 if (_packetPos >= SBUS_PACKET_SIZE)
                 {
-                    if (verifyPacket() == RCDRIVER_OK &&
-                        decodePacket() == RCDRIVER_OK)
+                    if (verifyPacket() == RCDRIVERS_OK &&
+                        decodePacket() == RCDRIVERS_OK)
                     {
                         hadDesync = false;  // clear desync if last packet was ok
                         notifyCallback();
@@ -107,19 +107,19 @@ rcdriver_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyn
     if (hadDesyncOut)
         *hadDesyncOut = hadDesync;
 
-    return RCDRIVER_OK;
+    return RCDRIVERS_OK;
 }
 
-rcdriver_err_t DecoderFSM::verifyPacket()
+rcdrivers_err_t DecoderFSM::verifyPacket()
 {
     if (_packetBuf[0] == SBUS_HEADER &&
         _packetBuf[SBUS_PACKET_SIZE - 1] == SBUS_END)
-        return RCDRIVER_OK;
+        return RCDRIVERS_OK;
     else
-        return RCDRIVER_FAIL;
+        return RCDRIVERS_FAIL;
 }
 
-rcdriver_err_t DecoderFSM::decodePacket()
+rcdrivers_err_t DecoderFSM::decodePacket()
 {
     return sbus_decode(_packetBuf, &_lastPacket);
 }
@@ -136,8 +136,8 @@ const sbus_packet_t& DecoderFSM::lastPacket() const
     return _lastPacket;
 }
 
-rcdriver_err_t DecoderFSM::onPacket(sbus_packet_cb cb)
+rcdrivers_err_t DecoderFSM::onPacket(sbus_packet_cb cb)
 {
     _packetCb = cb;
-    return RCDRIVER_OK;
+    return RCDRIVERS_OK;
 }

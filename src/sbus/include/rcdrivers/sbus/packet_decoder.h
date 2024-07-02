@@ -8,9 +8,9 @@
 extern "C" {
 #endif
 
-enum rcdriver_err_t sbus_decode(const uint8_t buf[], struct sbus_packet_t *packet);
+enum rcdrivers_err_t sbus_decode(const uint8_t buf[], struct sbus_packet_t *packet);
 
-enum rcdriver_err_t sbus_encode(uint8_t buf[], const struct sbus_packet_t *packet);
+enum rcdrivers_err_t sbus_encode(uint8_t buf[], const struct sbus_packet_t *packet);
 
 #ifdef __cplusplus
 }
