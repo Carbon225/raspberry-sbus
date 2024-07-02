@@ -1,5 +1,5 @@
-#ifndef RPISBUS_SBUS_PACKET_H
-#define RPISBUS_SBUS_PACKET_H
+#ifndef RCDRIVERS_SBUS_PACKET_H
+#define RCDRIVERS_SBUS_PACKET_H
 
 #ifdef __cplusplus
 #include <cstdint>

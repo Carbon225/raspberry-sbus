@@ -1,5 +1,5 @@
 #include "rcdrivers/tty/tty_low_latency_impl.h"
-#ifdef RPISBUS_LOW_LATENCY_IMPL_LINUX
+#ifdef RCDRIVERS_LOW_LATENCY_IMPL_LINUX
 
 #include "rcdrivers/tty/tty_low_latency.h"
 
@@ -36,4 +36,4 @@ enum rcdrivers_err_t tty_set_low_latency(int fd, bool setLowLatency)
     return RCDRIVERS_FAIL;
 }
 
-#endif // RPISBUS_LOW_LATENCY_IMPL_LINUX
+#endif // RCDRIVERS_LOW_LATENCY_IMPL_LINUX

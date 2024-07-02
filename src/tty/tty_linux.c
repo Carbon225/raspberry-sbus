@@ -1,5 +1,5 @@
 #include "rcdrivers/tty/tty_impl.h"
-#ifdef RPISBUS_TTY_IMPL_LINUX
+#ifdef RCDRIVERS_TTY_IMPL_LINUX
 
 #include "rcdrivers/tty/tty.h"
 
@@ -11,7 +11,7 @@
 #include "rcdrivers/sbus/sbus_spec.h"
 
 
-int sbus_install(const char path[], bool blocking, uint8_t timeout)
+int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout)
 {
     int fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (fd < 0)
@@ -90,19 +90,19 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
     return fd;
 }
 
-enum rcdrivers_err_t sbus_uninstall(int fd)
+enum rcdrivers_err_t rcdrivers_tty_uninstall(int fd)
 {
     return close(fd);
 }
 
-int sbus_read(int fd, uint8_t buf[], int bufSize)
+int rcdrivers_tty_read(int fd, uint8_t buf[], int bufSize)
 {
     if (!buf)
         return RCDRIVERS_ERR_INVALID_ARG;
     return read(fd, buf, bufSize);
 }
 
-enum rcdrivers_err_t sbus_write(int fd, const uint8_t buf[], int count)
+enum rcdrivers_err_t rcdrivers_tty_write(int fd, const uint8_t buf[], int count)
 {
     if (!buf)
         return RCDRIVERS_ERR_INVALID_ARG;
@@ -115,4 +115,4 @@ enum rcdrivers_err_t sbus_write(int fd, const uint8_t buf[], int count)
     return RCDRIVERS_OK;
 }
 
-#endif // RPISBUS_TTY_IMPL_LINUX
+#endif // RCDRIVERS_TTY_IMPL_LINUX

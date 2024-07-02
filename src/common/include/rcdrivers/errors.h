@@ -1,5 +1,5 @@
-#ifndef RPISBUS_SBUS_ERROR_H
-#define RPISBUS_SBUS_ERROR_H
+#ifndef RCDRIVERS_SBUS_ERROR_H
+#define RCDRIVERS_SBUS_ERROR_H
 
 enum rcdrivers_err_t
 {

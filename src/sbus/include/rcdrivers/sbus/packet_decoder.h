@@ -1,5 +1,5 @@
-#ifndef RPISBUS_PACKET_DECODER_H
-#define RPISBUS_PACKET_DECODER_H
+#ifndef RCDRIVERS_PACKET_DECODER_H
+#define RCDRIVERS_PACKET_DECODER_H
 
 #include "rcdrivers/errors.h"
 #include "rcdrivers/sbus/sbus_packet.h"

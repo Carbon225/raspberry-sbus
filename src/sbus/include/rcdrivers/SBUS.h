@@ -1,5 +1,5 @@
-#ifndef RPISBUS_SBUS_H
-#define RPISBUS_SBUS_H
+#ifndef RCDRIVERS_SBUS_H
+#define RCDRIVERS_SBUS_H
 
 #include <cstdint>
 #include "rcdrivers/errors.h"
@@ -65,4 +65,4 @@ private:
 };
 
 
-#endif //RPISBUS_SBUS_H
+#endif //RCDRIVERS_SBUS_H

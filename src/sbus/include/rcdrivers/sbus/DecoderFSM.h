@@ -1,5 +1,5 @@
-#ifndef RPISBUS_DECODER_FSM_H
-#define RPISBUS_DECODER_FSM_H
+#ifndef RCDRIVERS_DECODER_FSM_H
+#define RCDRIVERS_DECODER_FSM_H
 
 #include <cstdint>
 #include "rcdrivers/errors.h"

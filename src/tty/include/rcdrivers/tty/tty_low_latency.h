@@ -1,5 +1,5 @@
-#ifndef RPISBUS_SBUS_LOW_LATENCY_H
-#define RPISBUS_SBUS_LOW_LATENCY_H
+#ifndef RCDRIVERS_TTY_LOW_LATENCY_H
+#define RCDRIVERS_TTY_LOW_LATENCY_H
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -17,4 +17,4 @@ enum rcdrivers_err_t tty_set_low_latency(int fd, bool setLowLatency);
 }
 #endif
 
-#endif  // RPISBUS_SBUS_LOW_LATENCY_H
+#endif  // RCDRIVERS_TTY_LOW_LATENCY_H

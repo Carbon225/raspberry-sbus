@@ -14,13 +14,13 @@ SBUS::~SBUS() noexcept
 
 rcdrivers_err_t SBUS::install(const char path[], bool blocking, uint8_t timeout)
 {
-    _fd = sbus_install(path, blocking, timeout);
+    _fd = rcdrivers_tty_install(path, blocking, timeout);
     return _fd < 0 ? RCDRIVERS_FAIL : RCDRIVERS_OK;
 }
 
 rcdrivers_err_t SBUS::uninstall()
 {
-    return _fd < 0 ? RCDRIVERS_OK : sbus_uninstall(_fd);
+    return _fd < 0 ? RCDRIVERS_OK : rcdrivers_tty_uninstall(_fd);
 }
 
 rcdrivers_err_t SBUS::setLowLatencyMode(bool enable)
@@ -38,7 +38,7 @@ rcdrivers_err_t SBUS::read()
     if (_fd < 0)
         return RCDRIVERS_FAIL;
 
-    int nRead = sbus_read(_fd, _readBuf, READ_BUF_SIZE);
+    int nRead = rcdrivers_tty_read(_fd, _readBuf, READ_BUF_SIZE);
 
     // TODO SBUS_OK if timeout, else error
     if (nRead <= 0)
@@ -55,7 +55,7 @@ rcdrivers_err_t SBUS::write(const sbus_packet_t &packet)
     rcdrivers_err_t err = sbus_encode(_writeBuf, &packet);
     if (err)
         return err;
-    return sbus_write(_fd, _writeBuf, SBUS_PACKET_SIZE);
+    return rcdrivers_tty_write(_fd, _writeBuf, SBUS_PACKET_SIZE);
 }
 
 uint16_t SBUS::channel(int num) const

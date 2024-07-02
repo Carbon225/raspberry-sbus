@@ -1,5 +1,5 @@
-#ifndef RPISBUS_SBUS_TTY_H
-#define RPISBUS_SBUS_TTY_H
+#ifndef RCDRIVERS_TTY_H
+#define RCDRIVERS_TTY_H
 
 #ifdef __cplusplus
 #include <cstdint>
@@ -14,14 +14,14 @@
 extern "C" {
 #endif
 
-int sbus_install(const char path[], bool blocking, uint8_t timeout);
-enum rcdrivers_err_t sbus_uninstall(int fd);
+int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout);
+enum rcdrivers_err_t rcdrivers_tty_uninstall(int fd);
 
-int sbus_read(int fd, uint8_t buf[], int bufSize);
-enum rcdrivers_err_t sbus_write(int fd, const uint8_t buf[], int count);
+int rcdrivers_tty_read(int fd, uint8_t buf[], int bufSize);
+enum rcdrivers_err_t rcdrivers_tty_write(int fd, const uint8_t buf[], int count);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // RPISBUS_SBUS_TTY_H
+#endif // RCDRIVERS_TTY_H
