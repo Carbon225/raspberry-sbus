@@ -1,39 +1,39 @@
-#include "rcdrivers/SBUS.h"
+#include "rcdrivers/CRSF.h"
+
 #include "rcdrivers/tty/tty.h"
 #include "rcdrivers/tty/tty_low_latency.h"
-#include "rcdrivers/sbus/packet_decoder.h"
 
-SBUS::SBUS() noexcept
+CRSF::CRSF() noexcept
     : _fd(-1)
 {}
 
-SBUS::~SBUS() noexcept
+CRSF::~CRSF() noexcept
 {
     uninstall();
 }
 
-rcdrivers_err_t SBUS::install(const char path[], bool blocking, uint8_t timeout)
+rcdrivers_err_t CRSF::install(const char path[], bool blocking, uint8_t timeout)
 {
     _fd = rcdrivers_tty_install(path, blocking, timeout);
     return _fd < 0 ? RCDRIVERS_FAIL : RCDRIVERS_OK;
 }
 
-rcdrivers_err_t SBUS::uninstall()
+rcdrivers_err_t CRSF::uninstall()
 {
     return _fd < 0 ? RCDRIVERS_OK : rcdrivers_tty_uninstall(_fd);
 }
 
-rcdrivers_err_t SBUS::setLowLatencyMode(bool enable)
+rcdrivers_err_t CRSF::setLowLatencyMode(bool enable)
 {
     return _fd < 0 ? RCDRIVERS_FAIL : tty_set_low_latency(_fd, enable);
 }
 
-rcdrivers_err_t SBUS::onPacket(sbus_packet_cb cb)
+rcdrivers_err_t CRSF::onPacket(crsf_packet_cb cb)
 {
     return _decoder.onPacket(cb);
 }
 
-rcdrivers_err_t SBUS::read()
+rcdrivers_err_t CRSF::read()
 {
     if (_fd < 0)
         return RCDRIVERS_FAIL;
@@ -50,23 +50,10 @@ rcdrivers_err_t SBUS::read()
     return hadDesync ? RCDRIVERS_ERR_DESYNC : RCDRIVERS_OK;
 }
 
-rcdrivers_err_t SBUS::write(const sbus_packet_t &packet)
+rcdrivers_err_t CRSF::write(const crsf_packet_t &packet)
 {
-    rcdrivers_err_t err = sbus_encode(_writeBuf, &packet);
+    rcdrivers_err_t err = CRSFDecoder::encode(_writeBuf, &packet);
     if (err)
         return err;
-    return rcdrivers_tty_write(_fd, _writeBuf, SBUS_PACKET_SIZE);
-}
-
-uint16_t SBUS::channel(int num) const
-{
-    if (num >= 0 & num < 16)
-        return _decoder.lastPacket().channels[num];
-    else
-        return 0;
-}
-
-const sbus_packet_t& SBUS::lastPacket() const
-{
-    return _decoder.lastPacket();
+    return rcdrivers_tty_write(_fd, _writeBuf, _writeBuf[CRSF_PACKET_SIZE_BYTE]);
 }
