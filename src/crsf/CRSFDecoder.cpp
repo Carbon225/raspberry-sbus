@@ -1,8 +1,40 @@
 #include "rcdrivers/crsf/CRSFDecoder.h"
 
-static rcdrivers_err_t verifyCrsfCrc8(const uint8_t packet[])
+static uint8_t crc8_dvb_s2(uint8_t crc, uint8_t a)
 {
-    return RCDRIVERS_FAIL;
+    crc = crc ^ a;
+    for (int ii = 0; ii < 8; ii++)
+    {
+        if (crc & 0x80)
+        {
+            crc = (crc << 1) ^ 0xD5;
+        }
+        else
+        {
+            crc = crc << 1;
+        }
+    }
+    return crc;
+}
+
+static uint8_t crc8_data(const uint8_t *data, size_t len)
+{
+    uint8_t crc = 0;
+    for (size_t i = 0; i < len; i++)
+    {
+        crc = crc8_dvb_s2(crc, data[i]);
+    }
+    return crc;
+}
+
+static bool crsf_validate_frame(const uint8_t *frame, size_t len)
+{
+    if (len < 2)
+    {
+        return false; // Frame too short to be valid
+    }
+    // frame[2:-1]
+    return crc8_data(frame + 2, len - 3) == frame[len - 1];
 }
 
 CRSFDecoder::CRSFDecoder()
@@ -119,7 +151,8 @@ bool CRSFDecoder::packetReceivedWhole()
 rcdrivers_err_t CRSFDecoder::verifyPacket()
 {
     if ((_packetBuf[0] == CRSF_SYNC_BYTE || _packetBuf[0] == CRSF_SYNC_BYTE_EDGETX) &&
-        verifyCrsfCrc8(_packetBuf) == RCDRIVERS_OK)
+        packetReceivedWhole() &&
+        crsf_validate_frame(_packetBuf, _packetBuf[CRSF_PACKET_LEN_BYTE] + 2))
         return RCDRIVERS_OK;
     else
         return RCDRIVERS_FAIL;
