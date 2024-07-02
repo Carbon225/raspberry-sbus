@@ -199,6 +199,9 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
         break;
 
     case CRSF_FRAMETYPE_FLIGHT_MODE:
+        memset(packet->payload.flight_mode.flight_mode, 0, CRSF_MAX_FLIGHT_MODE_LEN);
+        memcpy(packet->payload.flight_mode.flight_mode, buf + CRSF_PACKET_PAYLOAD_BYTE, CRSF_PAYLOAD_LEN(buf));
+        packet->payload.flight_mode.flight_mode[CRSF_MAX_FLIGHT_MODE_LEN - 1] = '\0';
         break;
     
     default:
@@ -206,6 +209,7 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
         memcpy(packet->payload.other.data, buf + CRSF_PACKET_PAYLOAD_BYTE, packet->payload.other.len);
         break;
     }
+    return RCDRIVERS_OK;
 }
 
 rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
