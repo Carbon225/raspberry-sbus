@@ -191,6 +191,26 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
     switch (frametype)
     {
     case CRSF_FRAMETYPE_RC_CHANNELS_PACKED:
+        {
+            const uint8_t *payload = buf + CRSF_PACKET_PAYLOAD_BYTE;
+            uint16_t *channels = packet->payload.rc_channels_packed.channels;
+            channels[0]  = (uint16_t)((payload[0]       | payload[1] << 8)                       & 0x07FF);
+            channels[1]  = (uint16_t)((payload[1]  >> 3 | payload[2] << 5)                       & 0x07FF);
+            channels[2]  = (uint16_t)((payload[2]  >> 6 | payload[3] << 2 | payload[4] << 10)    & 0x07FF);
+            channels[3]  = (uint16_t)((payload[4]  >> 1 | payload[5] << 7)                       & 0x07FF);
+            channels[4]  = (uint16_t)((payload[5]  >> 4 | payload[6] << 4)                       & 0x07FF);
+            channels[5]  = (uint16_t)((payload[6]  >> 7 | payload[7] << 1 | payload[8] << 9)     & 0x07FF);
+            channels[6]  = (uint16_t)((payload[8]  >> 2 | payload[9] << 6)                       & 0x07FF);
+            channels[7]  = (uint16_t)((payload[9]  >> 5 | payload[10] << 3)                      & 0x07FF);
+            channels[8]  = (uint16_t)((payload[11]      | payload[12] << 8)                      & 0x07FF);
+            channels[9]  = (uint16_t)((payload[12] >> 3 | payload[13] << 5)                      & 0x07FF);
+            channels[10] = (uint16_t)((payload[13] >> 6 | payload[14] << 2 | payload[15] << 10)  & 0x07FF);
+            channels[11] = (uint16_t)((payload[15] >> 1 | payload[16] << 7)                      & 0x07FF);
+            channels[12] = (uint16_t)((payload[16] >> 4 | payload[17] << 4)                      & 0x07FF);
+            channels[13] = (uint16_t)((payload[17] >> 7 | payload[18] << 1 | payload[19] << 9)   & 0x07FF);
+            channels[14] = (uint16_t)((payload[19] >> 2 | payload[20] << 6)                      & 0x07FF);
+            channels[15] = (uint16_t)((payload[20] >> 5 | payload[21] << 3)                      & 0x07FF);
+        }
         break;
 
     case CRSF_FRAMETYPE_BATTERY_SENSOR:
