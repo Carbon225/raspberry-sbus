@@ -55,5 +55,5 @@ rcdrivers_err_t CRSF::write(const crsf_packet_t &packet)
     rcdrivers_err_t err = CRSFDecoder::encode(_writeBuf, &packet);
     if (err)
         return err;
-    return rcdrivers_tty_write(_fd, _writeBuf, _writeBuf[CRSF_PACKET_LEN_BYTE + 2]);
+    return rcdrivers_tty_write(_fd, _writeBuf, _writeBuf[CRSF_PACKET_LEN_BYTE] + 2);
 }

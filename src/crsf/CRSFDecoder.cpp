@@ -1,5 +1,7 @@
 #include "rcdrivers/crsf/CRSFDecoder.h"
 
+#include <cstddef>
+
 static uint8_t crc8_dvb_s2(uint8_t crc, uint8_t a)
 {
     crc = crc ^ a;
