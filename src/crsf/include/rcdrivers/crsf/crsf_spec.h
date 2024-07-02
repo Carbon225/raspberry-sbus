@@ -36,7 +36,7 @@
 #define CRSF_SYNC_BYTE (0xC8)
 #define CRSF_SYNC_BYTE_EDGETX (0xEE)
 
-#define CRSF_PACKET_SIZE_BYTE (1)
+#define CRSF_PACKET_LEN_BYTE (1)
 
 // Maximum length of a flight mode string including null (CRSF_FRAMETYPE_FLIGHT_MODE)
 #define CRSF_MAX_FLIGHT_MODE_LEN (14)

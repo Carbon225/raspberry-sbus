@@ -37,6 +37,7 @@ private:
     crsf_packet_t _lastPacket;
     crsf_packet_cb _packetCb;
 
+    bool packetReceivedWhole();
     rcdrivers_err_t verifyPacket();
     rcdrivers_err_t decodePacket();
     bool notifyCallback();
