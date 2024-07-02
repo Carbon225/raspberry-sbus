@@ -1,6 +1,6 @@
 #include <iostream>
 #include <chrono>
-#include "SBUS.h"
+#include "rcdrivers/SBUS.h"
 
 using std::cout;
 using std::cerr;
@@ -53,8 +53,8 @@ int main(int argc, char **argv)
 
     sbus.onPacket(onPacket);
 
-    sbus_err_t err = sbus.install(ttyPath.c_str(), false);  // false for non-blocking
-    if (err != SBUS_OK)
+    rcdriver_err_t err = sbus.install(ttyPath.c_str(), false);  // false for non-blocking
+    if (err != RCDRIVER_OK)
     {
         cerr << "SBUS install error: " << err << endl;
         return err;
@@ -63,10 +63,10 @@ int main(int argc, char **argv)
     cout << "SBUS installed" << endl;
 
     // non-blocking mode, read() will check if any data is available and return immediately
-    while ((err = sbus.read()) != SBUS_FAIL)
+    while ((err = sbus.read()) != RCDRIVER_FAIL)
     {
         // desync means a packet was misaligned and not received properly
-        if (err == SBUS_ERR_DESYNC)
+        if (err == RCDRIVER_ERR_DESYNC)
         {
             cerr << "SBUS desync" << endl;
         }

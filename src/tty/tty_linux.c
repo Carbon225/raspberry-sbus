@@ -1,14 +1,14 @@
-#include "sbus/sbus_tty_impl.h"
+#include "rcdrivers/tty/tty_impl.h"
 #ifdef RPISBUS_TTY_IMPL_LINUX
 
-#include "sbus/sbus_tty.h"
+#include "rcdrivers/tty/tty.h"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <asm/termbits.h>
 #include <sys/ioctl.h>
 
-#include "sbus/sbus_spec.h"
+#include "rcdrivers/sbus/sbus_spec.h"
 
 
 int sbus_install(const char path[], bool blocking, uint8_t timeout)
@@ -16,13 +16,13 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
     int fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (fd < 0)
     {
-        return SBUS_ERR_OPEN;
+        return RCDRIVER_ERR_OPEN;
     }
 
     struct termios2 options;
     if (ioctl(fd, TCGETS2, &options))
     {
-        return SBUS_ERR_TCGETS2;
+        return RCDRIVER_ERR_TCGETS2;
     }
 
     // sbus options
@@ -84,13 +84,13 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
 
     if (ioctl(fd, TCSETS2, &options))
     {
-        return SBUS_ERR_TCSETS2;
+        return RCDRIVER_ERR_TCSETS2;
     }
 
     return fd;
 }
 
-enum sbus_err_t sbus_uninstall(int fd)
+enum rcdriver_err_t sbus_uninstall(int fd)
 {
     return close(fd);
 }
@@ -98,21 +98,21 @@ enum sbus_err_t sbus_uninstall(int fd)
 int sbus_read(int fd, uint8_t buf[], int bufSize)
 {
     if (!buf)
-        return SBUS_ERR_INVALID_ARG;
+        return RCDRIVER_ERR_INVALID_ARG;
     return read(fd, buf, bufSize);
 }
 
-enum sbus_err_t sbus_write(int fd, const uint8_t buf[], int count)
+enum rcdriver_err_t sbus_write(int fd, const uint8_t buf[], int count)
 {
     if (!buf)
-        return SBUS_ERR_INVALID_ARG;
+        return RCDRIVER_ERR_INVALID_ARG;
 
     if (write(fd, buf, count) != count)
     {
-        return SBUS_FAIL;
+        return RCDRIVER_FAIL;
     }
 
-    return SBUS_OK;
+    return RCDRIVER_OK;
 }
 
 #endif // RPISBUS_TTY_IMPL_LINUX

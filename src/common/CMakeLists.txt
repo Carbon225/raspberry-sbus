@@ -1,1 +1,1 @@
-target_include_directories(libsbus PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(rcdrivers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstring>
-#include "sbus/packet_decoder.h"
+#include "rcdrivers/sbus/packet_decoder.h"
 
 using namespace std;
 

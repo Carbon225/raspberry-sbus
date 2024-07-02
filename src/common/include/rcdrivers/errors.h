@@ -1,0 +1,15 @@
+#ifndef RPISBUS_SBUS_ERROR_H
+#define RPISBUS_SBUS_ERROR_H
+
+enum rcdriver_err_t
+{
+    RCDRIVER_OK = 0,
+    RCDRIVER_FAIL = -1,
+    RCDRIVER_ERR_TCGETS2 = -2,
+    RCDRIVER_ERR_TCSETS2 = -3,
+    RCDRIVER_ERR_OPEN = -4,
+    RCDRIVER_ERR_INVALID_ARG = -5,
+    RCDRIVER_ERR_DESYNC = -6,
+};
+
+#endif

@@ -5,13 +5,13 @@
 #include <stdbool.h>
 #endif
 
-#include "sbus/sbus_error.h"
+#include "rcdrivers/errors.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum sbus_err_t sbus_set_low_latency(int fd, bool setLowLatency);
+enum rcdriver_err_t tty_set_low_latency(int fd, bool setLowLatency);
 
 #ifdef __cplusplus
 }

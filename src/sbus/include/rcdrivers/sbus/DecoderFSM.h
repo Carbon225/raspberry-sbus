@@ -2,8 +2,8 @@
 #define RPISBUS_DECODER_FSM_H
 
 #include <cstdint>
-#include "sbus/sbus_error.h"
-#include "sbus/sbus_packet.h"
+#include "rcdrivers/errors.h"
+#include "rcdrivers/sbus/sbus_packet.h"
 
 typedef void (*sbus_packet_cb)(const sbus_packet_t&);
 
@@ -12,9 +12,9 @@ class DecoderFSM
 public:
     DecoderFSM();
 
-    sbus_err_t feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut);
+    rcdriver_err_t feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut);
 
-    sbus_err_t onPacket(sbus_packet_cb cb);
+    rcdriver_err_t onPacket(sbus_packet_cb cb);
 
     const sbus_packet_t& lastPacket() const;
 
@@ -32,8 +32,8 @@ private:
     sbus_packet_t _lastPacket;
     sbus_packet_cb _packetCb;
 
-    sbus_err_t verifyPacket();
-    sbus_err_t decodePacket();
+    rcdriver_err_t verifyPacket();
+    rcdriver_err_t decodePacket();
     bool notifyCallback();
 };
 
