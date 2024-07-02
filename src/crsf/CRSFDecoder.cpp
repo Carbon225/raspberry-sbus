@@ -147,14 +147,14 @@ rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], int bufSize, bool *hadDes
 bool CRSFDecoder::packetReceivedWhole()
 {
     return (_packetPos > CRSF_PACKET_LEN_BYTE) &&
-           (_packetPos >= (_packetBuf[CRSF_PACKET_LEN_BYTE] + 2));
+           (_packetPos >= (CRSF_PACKET_LEN(_packetBuf)));
 }
 
 rcdrivers_err_t CRSFDecoder::verifyPacket()
 {
     if ((_packetBuf[0] == CRSF_SYNC_BYTE || _packetBuf[0] == CRSF_SYNC_BYTE_EDGETX) &&
         packetReceivedWhole() &&
-        crsf_validate_frame(_packetBuf, _packetBuf[CRSF_PACKET_LEN_BYTE] + 2))
+        crsf_validate_frame(_packetBuf, CRSF_PACKET_LEN(_packetBuf)))
         return RCDRIVERS_OK;
     else
         return RCDRIVERS_FAIL;
@@ -185,7 +185,27 @@ rcdrivers_err_t CRSFDecoder::onPacket(crsf_packet_cb cb)
 
 rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
 {
-    return RCDRIVERS_FAIL;
+    crsf_frametype_t frametype = static_cast<crsf_frametype_t>(buf[CRSF_PACKET_FRAMETYPE_BYTE]);
+    packet->frametype = frametype;
+    switch (frametype)
+    {
+    case CRSF_FRAMETYPE_RC_CHANNELS_PACKED:
+        break;
+
+    case CRSF_FRAMETYPE_BATTERY_SENSOR:
+        break;
+
+    case CRSF_FRAMETYPE_ATTITUDE:
+        break;
+
+    case CRSF_FRAMETYPE_FLIGHT_MODE:
+        break;
+    
+    default:
+        packet->payload.other.len = CRSF_PAYLOAD_LEN(buf);
+        memcpy(packet->payload.other.data, buf + CRSF_PACKET_PAYLOAD_BYTE, packet->payload.other.len);
+        break;
+    }
 }
 
 rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
