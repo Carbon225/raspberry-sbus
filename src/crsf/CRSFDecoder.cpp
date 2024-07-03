@@ -243,6 +243,9 @@ rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
     {
     case CRSF_FRAMETYPE_RC_CHANNELS_PACKED:
         {
+            payloadLen = 22;
+            memset(payload, 0, payloadLen);
+
             const uint16_t *channels = packet->payload.rc_channels_packed.channels;
 
             payload[0] = channels[0] & 0xff;
@@ -276,7 +279,6 @@ rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
                     usedBits %= 8;
                 }
             }
-            payloadLen = 22;
         }
         break;
 
