@@ -214,10 +214,10 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
         break;
 
     case CRSF_FRAMETYPE_BATTERY_SENSOR:
-        break;
+        return RCDRIVERS_FAIL;
 
     case CRSF_FRAMETYPE_ATTITUDE:
-        break;
+        return RCDRIVERS_FAIL;
 
     case CRSF_FRAMETYPE_FLIGHT_MODE:
         memset(packet->payload.flight_mode.flight_mode, 0, CRSF_MAX_FLIGHT_MODE_LEN);
@@ -235,5 +235,65 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
 
 rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
 {
-    return RCDRIVERS_FAIL;
+    buf[0] = CRSF_SYNC_BYTE;
+    buf[CRSF_PACKET_FRAMETYPE_BYTE] = packet->frametype;
+    uint8_t *payload = buf + CRSF_PACKET_PAYLOAD_BYTE;
+    uint8_t payloadLen = 0;
+    switch (packet->frametype)
+    {
+    case CRSF_FRAMETYPE_RC_CHANNELS_PACKED:
+        {
+            const uint16_t *channels = packet->payload.rc_channels_packed.channels;
+
+            payload[0] = channels[0] & 0xff;
+            payload[1] = channels[0] >> 8 & 0b111;
+            int currentByte = 1;
+            int usedBits = 3; // from LSB
+
+            for (int ch = 1; ch < 16; ch++)
+            {
+                // while channel not fully encoded
+                for (int bitsWritten = 0; bitsWritten < 11;)
+                {
+                    // strip written bits, shift over used bits
+                    payload[currentByte] |= channels[ch] >> bitsWritten << usedBits & 0xff;
+
+                    int hadToWrite = 11 - bitsWritten;
+                    int couldWrite = 8 - usedBits;
+
+                    int wrote = couldWrite;
+                    if (hadToWrite < couldWrite)
+                    {
+                        wrote = hadToWrite;
+                    }
+                    else
+                    {
+                        currentByte++;
+                    }
+
+                    bitsWritten += wrote;
+                    usedBits += wrote;
+                    usedBits %= 8;
+                }
+            }
+            payloadLen = 22;
+        }
+
+    case CRSF_FRAMETYPE_BATTERY_SENSOR:
+        return RCDRIVERS_FAIL;
+
+    case CRSF_FRAMETYPE_ATTITUDE:
+        return RCDRIVERS_FAIL;
+
+    case CRSF_FRAMETYPE_FLIGHT_MODE:
+        return RCDRIVERS_FAIL;
+
+    default:
+        memcpy(payload, packet->payload.other.data, packet->payload.other.len);
+        payloadLen = packet->payload.other.len;
+        break;
+    }
+    buf[CRSF_PACKET_LEN_BYTE] = payloadLen + 2;
+    buf[CRSF_PACKET_LEN(buf) - 1] = crc8_data(buf + 2, CRSF_PACKET_LEN(buf) - 3);
+    return RCDRIVERS_OK;
 }
