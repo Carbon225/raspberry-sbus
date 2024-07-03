@@ -8,10 +8,7 @@
 #include <asm/termbits.h>
 #include <sys/ioctl.h>
 
-#include "rcdrivers/sbus/sbus_spec.h"
-
-
-int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout)
+int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int baud)
 {
     int fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (fd < 0)
@@ -80,7 +77,7 @@ int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout)
     // set SBUS baud
     options.c_cflag &= ~CBAUD;
     options.c_cflag |= BOTHER;
-    options.c_ispeed = options.c_ospeed = SBUS_BAUD;
+    options.c_ispeed = options.c_ospeed = baud;
 
     if (ioctl(fd, TCSETS2, &options))
     {

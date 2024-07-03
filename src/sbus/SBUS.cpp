@@ -2,6 +2,7 @@
 #include "rcdrivers/tty/tty.h"
 #include "rcdrivers/tty/tty_low_latency.h"
 #include "rcdrivers/sbus/packet_decoder.h"
+#include "rcdrivers/sbus/sbus_spec.h"
 
 SBUS::SBUS() noexcept
     : _fd(-1)
@@ -14,7 +15,7 @@ SBUS::~SBUS() noexcept
 
 rcdrivers_err_t SBUS::install(const char path[], bool blocking, uint8_t timeout)
 {
-    _fd = rcdrivers_tty_install(path, blocking, timeout);
+    _fd = rcdrivers_tty_install(path, blocking, timeout, SBUS_BAUD);
     return _fd < 0 ? RCDRIVERS_FAIL : RCDRIVERS_OK;
 }
 

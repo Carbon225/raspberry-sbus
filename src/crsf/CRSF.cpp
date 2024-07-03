@@ -14,7 +14,7 @@ CRSF::~CRSF() noexcept
 
 rcdrivers_err_t CRSF::install(const char path[], bool blocking, uint8_t timeout)
 {
-    _fd = rcdrivers_tty_install(path, blocking, timeout);
+    _fd = rcdrivers_tty_install(path, blocking, timeout, CRSF_BAUD);
     return _fd < 0 ? RCDRIVERS_FAIL : RCDRIVERS_OK;
 }
 
