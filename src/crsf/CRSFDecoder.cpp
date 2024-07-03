@@ -77,8 +77,11 @@ rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], int bufSize, bool *hadDes
                 break;
 
             case State::PACKET:
+                // overflow!
                 _packetBuf[_packetPos] = buf[i];
                 _packetPos++;
+
+                // TODO: reject if len byte is too large !!!
 
                 if (packetReceivedWhole())
                 {
@@ -155,6 +158,7 @@ rcdrivers_err_t CRSFDecoder::verifyPacket()
 {
     if ((_packetBuf[0] == CRSF_SYNC_BYTE || _packetBuf[0] == CRSF_SYNC_BYTE_EDGETX) &&
         packetReceivedWhole() &&
+        CRSF_PACKET_LEN(_packetBuf) <= CRSF_MAX_PACKET_SIZE &&
         crsf_validate_frame(_packetBuf, CRSF_PACKET_LEN(_packetBuf)))
         return RCDRIVERS_OK;
     else
@@ -214,10 +218,17 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
         break;
 
     case CRSF_FRAMETYPE_BATTERY_SENSOR:
-        return RCDRIVERS_FAIL;
+        packet->payload.battery_sensor.voltage = static_cast<uint16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 0] | buf[CRSF_PACKET_PAYLOAD_BYTE + 1] << 8));
+        packet->payload.battery_sensor.current = static_cast<uint16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 2] | buf[CRSF_PACKET_PAYLOAD_BYTE + 3] << 8));
+        packet->payload.battery_sensor.used_capacity = static_cast<uint32_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 4] | buf[CRSF_PACKET_PAYLOAD_BYTE + 5] << 8 | buf[CRSF_PACKET_PAYLOAD_BYTE + 6] << 16));
+        packet->payload.battery_sensor.remaining = buf[CRSF_PACKET_PAYLOAD_BYTE + 7];
+        break;
 
     case CRSF_FRAMETYPE_ATTITUDE:
-        return RCDRIVERS_FAIL;
+        packet->payload.attitude.pitch = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 0] | buf[CRSF_PACKET_PAYLOAD_BYTE + 1] << 8));
+        packet->payload.attitude.roll = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 2] | buf[CRSF_PACKET_PAYLOAD_BYTE + 3] << 8));
+        packet->payload.attitude.yaw = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 4] | buf[CRSF_PACKET_PAYLOAD_BYTE + 5] << 8));
+        break;
 
     case CRSF_FRAMETYPE_FLIGHT_MODE:
         memset(packet->payload.flight_mode.flight_mode, 0, CRSF_MAX_FLIGHT_MODE_LEN);
@@ -289,7 +300,9 @@ rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
         return RCDRIVERS_FAIL;
 
     case CRSF_FRAMETYPE_FLIGHT_MODE:
-        return RCDRIVERS_FAIL;
+        payloadLen = strnlen(packet->payload.flight_mode.flight_mode, CRSF_MAX_FLIGHT_MODE_LEN - 1);
+        memcpy(payload, packet->payload.flight_mode.flight_mode, payloadLen);
+        break;
 
     default:
         memcpy(payload, packet->payload.other.data, packet->payload.other.len);
