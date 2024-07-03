@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 
-int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int baud)
+int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int baud, bool stopBits2, bool parityEven)
 {
     exit(1);
 }

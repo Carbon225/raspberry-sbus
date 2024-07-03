@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int baud);
+int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int baud, bool stopBits2, bool parityEven);
 enum rcdrivers_err_t rcdrivers_tty_uninstall(int fd);
 
 int rcdrivers_tty_read(int fd, uint8_t buf[], int bufSize);

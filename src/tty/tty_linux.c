@@ -8,7 +8,7 @@
 #include <asm/termbits.h>
 #include <sys/ioctl.h>
 
-int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int baud)
+int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int baud, bool stopBits2, bool parityEven)
 {
     int fd = open(path, O_RDWR | O_NOCTTY | (blocking ? 0 : O_NONBLOCK));
     if (fd < 0)
@@ -25,9 +25,26 @@ int rcdrivers_tty_install(const char path[], bool blocking, uint8_t timeout, int
     // sbus options
     // see man termios(3)
 
-    options.c_cflag |= PARENB;  // enable parity
-    options.c_cflag &= ~PARODD; // even parity
-    options.c_cflag |= CSTOPB;  // enable 2 stop bits
+    if (parityEven)
+    {
+        options.c_cflag |= PARENB;  // enable parity
+        options.c_cflag &= ~PARODD; // even parity
+    }
+    else
+    {
+        options.c_cflag &= ~PARENB;  // disable parity
+        options.c_cflag &= ~PARODD; // even parity
+    }
+
+    if (stopBits2)
+    {
+        options.c_cflag |= CSTOPB;  // enable 2 stop bits
+    }
+    else
+    {
+        options.c_cflag &= ~CSTOPB;  // disable 2 stop bits
+    }
+
     options.c_cflag &= ~CSIZE;  // clear character size mask
     options.c_cflag |= CS8;     // 8 bit characters
     options.c_cflag &= ~CRTSCTS;  // disable hardware flow control

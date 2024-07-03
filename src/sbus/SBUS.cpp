@@ -15,7 +15,7 @@ SBUS::~SBUS() noexcept
 
 rcdrivers_err_t SBUS::install(const char path[], bool blocking, uint8_t timeout)
 {
-    _fd = rcdrivers_tty_install(path, blocking, timeout, SBUS_BAUD);
+    _fd = rcdrivers_tty_install(path, blocking, timeout, SBUS_BAUD, true, true);
     return _fd < 0 ? RCDRIVERS_FAIL : RCDRIVERS_OK;
 }
 
