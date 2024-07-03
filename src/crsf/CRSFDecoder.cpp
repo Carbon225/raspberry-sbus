@@ -278,6 +278,7 @@ rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
             }
             payloadLen = 22;
         }
+        break;
 
     case CRSF_FRAMETYPE_BATTERY_SENSOR:
         return RCDRIVERS_FAIL;
