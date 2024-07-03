@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 #ifdef FTDI_ADAPTER
     // enable only if you have weird packet timings (mostly on FTDI chips)
     err = sbus.setLowLatencyMode(true);
-    if (err != SBUS_OK)
+    if (err != RCDRIVERS_OK)
     {
         cerr << "SBUS set low latency error: " << err << endl;
         return err;
