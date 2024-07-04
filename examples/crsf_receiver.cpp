@@ -22,9 +22,28 @@ static void onPacket(const crsf_packet_t &packet)
         for (int i = 0; i < CRSF_NUM_RC_CHANNELS; ++i)
             cout << "ch" << i + 1 << ": " << packet.payload.rc_channels_packed.channels[i] << "\t";
 
-        cout << endl;
+        cout << '\n' << endl;
 
         lastPrint = now;
+    }
+    else if (packet.frametype == CRSF_FRAMETYPE_BATTERY_SENSOR)
+    {
+        cout << "battery\n"
+             << "  voltage:   " << (static_cast<double>(packet.payload.battery_sensor.voltage) / 10.0) << " V\n"
+             << "  current:   " << (static_cast<double>(packet.payload.battery_sensor.current) / 10.0) << " A\n"
+             << "  used:      " << (static_cast<double>(packet.payload.battery_sensor.used_capacity) / 10.0) << " mAh\n"
+             << "  remaining: " << static_cast<double>(packet.payload.battery_sensor.remaining) << "%\n" << endl;
+    }
+    else if (packet.frametype == CRSF_FRAMETYPE_FLIGHT_MODE)
+    {
+        cout << "flight mode: " << packet.payload.flight_mode.flight_mode << "\n" << endl;
+    }
+    else if (packet.frametype == CRSF_FRAMETYPE_ATTITUDE)
+    {
+        cout << "attitude\n"
+             << "  roll:  " << (static_cast<double>(packet.payload.attitude.roll) / 10000.0 / 3.1415 * 180.0) << "\n"
+             << "  pitch: " << (static_cast<double>(packet.payload.attitude.pitch) / 10000.0 / 3.1415 * 180.0) << "\n"
+             << "  yaw:   " << (static_cast<double>(packet.payload.attitude.yaw) / 10000.0 / 3.1415 * 180.0) << "\n" << endl;
     }
 }
 

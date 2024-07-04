@@ -16,7 +16,30 @@ using std::chrono::milliseconds;
 static CRSF crsf_radio;
 static CRSF crsf_fc;
 
-static void onPacket(const crsf_packet_t &packet)
+static void onFcPacket(const crsf_packet_t &packet)
+{
+    if (packet.frametype == CRSF_FRAMETYPE_BATTERY_SENSOR)
+    {
+        cout << "battery\n"
+             << "  voltage:   " << (static_cast<double>(packet.payload.battery_sensor.voltage) / 10.0) << " V\n"
+             << "  current:   " << (static_cast<double>(packet.payload.battery_sensor.current) / 10.0) << " A\n"
+             << "  used:      " << (static_cast<double>(packet.payload.battery_sensor.used_capacity) / 10.0) << " mAh\n"
+             << "  remaining: " << static_cast<double>(packet.payload.battery_sensor.remaining) << "%\n" << endl;
+    }
+    else if (packet.frametype == CRSF_FRAMETYPE_FLIGHT_MODE)
+    {
+        cout << "flight mode: " << packet.payload.flight_mode.flight_mode << "\n" << endl;
+    }
+    else if (packet.frametype == CRSF_FRAMETYPE_ATTITUDE)
+    {
+        cout << "attitude\n"
+             << "  roll:  " << (static_cast<double>(packet.payload.attitude.roll) / 10000.0 / 3.1415 * 180.0) << "\n"
+             << "  pitch: " << (static_cast<double>(packet.payload.attitude.pitch) / 10000.0 / 3.1415 * 180.0) << "\n"
+             << "  yaw:   " << (static_cast<double>(packet.payload.attitude.yaw) / 10000.0 / 3.1415 * 180.0) << "\n" << endl;
+    }
+}
+
+static void onRadioPacket(const crsf_packet_t &packet)
 {
     static auto lastPrint = steady_clock::now();
     auto now = steady_clock::now();
@@ -37,7 +60,7 @@ static void onPacket(const crsf_packet_t &packet)
 
 int main(int argc, char **argv)
 {
-    cout << "CRSF blocking passthrough example" << endl;
+    cout << "CRSF passthrough example" << endl;
 
     string radioTtyPath;
     string fcTtyPath;
@@ -53,16 +76,17 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    crsf_radio.onPacket(onPacket);
+    crsf_radio.onPacket(onRadioPacket);
+    crsf_fc.onPacket(onFcPacket);
 
-    rcdrivers_err_t err = crsf_radio.install(radioTtyPath.c_str(), true);  // true for blocking mode
+    rcdrivers_err_t err = crsf_radio.install(radioTtyPath.c_str(), false);
     if (err != RCDRIVERS_OK)
     {
         cerr << "CRSF radio install error: " << err << endl;
         return err;
     }
 
-    err = crsf_fc.install(fcTtyPath.c_str(), true);
+    err = crsf_fc.install(fcTtyPath.c_str(), false);
     if (err != RCDRIVERS_OK)
     {
         cerr << "CRSF FC install error: " << err << endl;
@@ -82,17 +106,13 @@ int main(int argc, char **argv)
 
     cout << "CRSF installed" << endl;
 
-    // blocks until data is available
-    while ((err = crsf_radio.read()) != RCDRIVERS_FAIL)
+    for (;;)
     {
-        // desync means a packet was misaligned and not received properly
-        if (err == RCDRIVERS_ERR_DESYNC)
-        {
-            cerr << "CRSF desync" << endl;
-        }
+        if (crsf_radio.read() != RCDRIVERS_OK)
+            break;
+        if (crsf_fc.read() != RCDRIVERS_OK)
+            break;
     }
 
-    cerr << "CRSF error: " << err << endl;
-
-    return err;
+    return 0;
 }
