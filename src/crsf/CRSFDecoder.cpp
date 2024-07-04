@@ -218,16 +218,16 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
         break;
 
     case CRSF_FRAMETYPE_BATTERY_SENSOR:
-        packet->payload.battery_sensor.voltage = static_cast<uint16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 0] | buf[CRSF_PACKET_PAYLOAD_BYTE + 1] << 8));
-        packet->payload.battery_sensor.current = static_cast<uint16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 2] | buf[CRSF_PACKET_PAYLOAD_BYTE + 3] << 8));
-        packet->payload.battery_sensor.used_capacity = static_cast<uint32_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 4] | buf[CRSF_PACKET_PAYLOAD_BYTE + 5] << 8 | buf[CRSF_PACKET_PAYLOAD_BYTE + 6] << 16));
+        packet->payload.battery_sensor.voltage = static_cast<uint16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 1] | buf[CRSF_PACKET_PAYLOAD_BYTE + 0] << 8));
+        packet->payload.battery_sensor.current = static_cast<uint16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 3] | buf[CRSF_PACKET_PAYLOAD_BYTE + 2] << 8));
+        packet->payload.battery_sensor.used_capacity = static_cast<uint32_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 6] | buf[CRSF_PACKET_PAYLOAD_BYTE + 5] << 8 | buf[CRSF_PACKET_PAYLOAD_BYTE + 4] << 16));
         packet->payload.battery_sensor.remaining = buf[CRSF_PACKET_PAYLOAD_BYTE + 7];
         break;
 
     case CRSF_FRAMETYPE_ATTITUDE:
-        packet->payload.attitude.pitch = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 0] | buf[CRSF_PACKET_PAYLOAD_BYTE + 1] << 8));
-        packet->payload.attitude.roll = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 2] | buf[CRSF_PACKET_PAYLOAD_BYTE + 3] << 8));
-        packet->payload.attitude.yaw = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 4] | buf[CRSF_PACKET_PAYLOAD_BYTE + 5] << 8));
+        packet->payload.attitude.pitch = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 1] | (buf[CRSF_PACKET_PAYLOAD_BYTE + 0] << 8)));
+        packet->payload.attitude.roll = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 3] | (buf[CRSF_PACKET_PAYLOAD_BYTE + 2] << 8)));
+        packet->payload.attitude.yaw = static_cast<int16_t>((buf[CRSF_PACKET_PAYLOAD_BYTE + 5] | (buf[CRSF_PACKET_PAYLOAD_BYTE + 4] << 8)));
         break;
 
     case CRSF_FRAMETYPE_FLIGHT_MODE:

@@ -31,7 +31,7 @@ private:
         HEADER_SKIP,
     } _state;
 
-    uint8_t _packetBuf[CRSF_MAX_PACKET_SIZE];
+    uint8_t _packetBuf[300]; // 300 to allow incorrect len field
     int _packetPos;
 
     crsf_packet_t _lastPacket;
