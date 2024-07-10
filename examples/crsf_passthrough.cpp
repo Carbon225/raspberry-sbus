@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <thread>
 #include "rcdrivers/CRSF.h"
 
 // uncomment if you have an FTDI adapter to enable low latency mode (might work on other adapters as well)
@@ -18,6 +19,9 @@ static CRSF crsf_fc;
 
 static void onFcPacket(const crsf_packet_t &packet)
 {
+    // retransmit received packet fc -> radio
+    crsf_radio.write(packet);
+
     if (packet.frametype == CRSF_FRAMETYPE_BATTERY_SENSOR)
     {
         cout << "battery\n"
@@ -44,7 +48,7 @@ static void onRadioPacket(const crsf_packet_t &packet)
     static auto lastPrint = steady_clock::now();
     auto now = steady_clock::now();
 
-    // retransmit received packet
+    // retransmit received packet radio -> fc
     crsf_fc.write(packet);
 
     if ((packet.frametype == CRSF_FRAMETYPE_RC_CHANNELS_PACKED) && (now - lastPrint > milliseconds(500)))
@@ -56,6 +60,25 @@ static void onRadioPacket(const crsf_packet_t &packet)
 
         lastPrint = now;
     }
+}
+
+static void crsfTask(CRSF *crsf)
+{
+    rcdrivers_err_t err;
+    for (;;)
+    {
+        err = crsf->read();
+        if (err == RCDRIVERS_ERR_DESYNC)
+        {
+            cerr << "CRSF desync" << endl;
+        }
+        else if (err != RCDRIVERS_OK)
+        {
+            cerr << "CRSF read error: " << err << endl;
+            break;
+        }
+    }
+    exit(0);
 }
 
 int main(int argc, char **argv)
@@ -79,14 +102,14 @@ int main(int argc, char **argv)
     crsf_radio.onPacket(onRadioPacket);
     crsf_fc.onPacket(onFcPacket);
 
-    rcdrivers_err_t err = crsf_radio.install(radioTtyPath.c_str(), false);
+    rcdrivers_err_t err = crsf_radio.install(radioTtyPath.c_str(), true);
     if (err != RCDRIVERS_OK)
     {
         cerr << "CRSF radio install error: " << err << endl;
         return err;
     }
 
-    err = crsf_fc.install(fcTtyPath.c_str(), false);
+    err = crsf_fc.install(fcTtyPath.c_str(), true);
     if (err != RCDRIVERS_OK)
     {
         cerr << "CRSF FC install error: " << err << endl;
@@ -101,18 +124,22 @@ int main(int argc, char **argv)
         cerr << "CRSF set low latency error: " << err << endl;
         return err;
     }
+    err = crsf_fc.setLowLatencyMode(true);
+    if (err != RCDRIVERS_OK)
+    {
+        cerr << "CRSF set low latency error: " << err << endl;
+        return err;
+    }
     cout << "Low latency mode enabled" << endl;
 #endif
 
     cout << "CRSF installed" << endl;
 
-    for (;;)
-    {
-        if (crsf_radio.read() != RCDRIVERS_OK)
-            break;
-        if (crsf_fc.read() != RCDRIVERS_OK)
-            break;
-    }
+    std::thread crsfRadioTask(crsfTask, &crsf_radio);
+    std::thread crsfFcTask(crsfTask, &crsf_fc);
+
+    crsfRadioTask.join();
+    crsfFcTask.join();
 
     return 0;
 }
