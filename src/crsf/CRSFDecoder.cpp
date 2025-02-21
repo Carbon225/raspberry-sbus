@@ -32,7 +32,7 @@ static uint8_t crc8_data(const uint8_t *data, size_t len)
 
 static bool crsf_validate_frame(const uint8_t *frame, size_t len)
 {
-    if (len < 2)
+    if (len < 3)
     {
         return false; // Frame too short to be valid
     }
