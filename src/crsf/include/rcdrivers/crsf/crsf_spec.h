@@ -87,10 +87,10 @@ struct crsf_payload_rc_channels_packed_t
 
 struct crsf_payload_battery_sensor_t
 {
-    int16_t voltage;
-    int16_t current;
-    int32_t used_capacity;
-    int8_t remaining;
+    uint16_t voltage;
+    uint16_t current;
+    uint32_t used_capacity;
+    uint8_t remaining;
 };
 
 struct crsf_payload_attitude_t
