@@ -294,24 +294,25 @@ rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
         break;
 
     case CRSF_FRAMETYPE_BATTERY_SENSOR:
-        payloadLen = 8;
-        memset(payload, 0, payloadLen);
+        {
+            payloadLen = 8;
+            memset(payload, 0, payloadLen);
 
-        uint16_t voltage = packet->payload.battery_sensor.voltage;
-        payload[0] = voltage >> 8 & 0xff;
-        payload[1] = voltage & 0xff;
+            uint16_t voltage = packet->payload.battery_sensor.voltage;
+            payload[0] = voltage >> 8 & 0xff;
+            payload[1] = voltage & 0xff;
 
-        uint16_t current = packet->payload.battery_sensor.current;
-        payload[2] = current >> 8 & 0xff;
-        payload[3] = current & 0xff;
+            uint16_t current = packet->payload.battery_sensor.current;
+            payload[2] = current >> 8 & 0xff;
+            payload[3] = current & 0xff;
 
-        uint32_t capacity = packet->payload.battery_sensor.used_capacity;
-        payload[4] = capacity >> 16 & 0xff;
-        payload[5] = capacity >> 8 & 0xff;
-        payload[6] = capacity & 0xff;
+            uint32_t capacity = packet->payload.battery_sensor.used_capacity;
+            payload[4] = capacity >> 16 & 0xff;
+            payload[5] = capacity >> 8 & 0xff;
+            payload[6] = capacity & 0xff;
 
-        payload[7] = packet->payload.battery_sensor.remaining;
-
+            payload[7] = packet->payload.battery_sensor.remaining;
+        }
         break;
 
     case CRSF_FRAMETYPE_ATTITUDE:
