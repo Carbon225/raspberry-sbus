@@ -77,11 +77,12 @@ rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], int bufSize, bool *hadDes
                 break;
 
             case State::PACKET:
-                // overflow!
+                // _packetPos will never be greater than 255
+                // because packetReceivedWhole() will return
+                // true for _packetPos >= uint8_max
+                // which will trigger _packetPos = 0
                 _packetBuf[_packetPos] = buf[i];
                 _packetPos++;
-
-                // TODO: reject if len byte is too large !!!
 
                 if (packetReceivedWhole())
                 {
@@ -193,6 +194,7 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
     crsf_frametype_t frametype = static_cast<crsf_frametype_t>(buf[CRSF_PACKET_FRAMETYPE_BYTE]);
     packet->frametype = frametype;
     switch (frametype)
+    // TODO: implement all frame types
     {
     case CRSF_FRAMETYPE_RC_CHANNELS_PACKED:
         {
@@ -251,6 +253,7 @@ rcdrivers_err_t CRSFDecoder::encode(uint8_t buf[], const crsf_packet_t *packet)
     uint8_t *payload = buf + CRSF_PACKET_PAYLOAD_BYTE;
     uint8_t payloadLen = 0;
     switch (packet->frametype)
+    // TODO: implement all frame types
     {
     case CRSF_FRAMETYPE_RC_CHANNELS_PACKED:
         {

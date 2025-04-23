@@ -42,6 +42,9 @@ rcdrivers_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesy
                 break;
 
             case State::PACKET:
+                // _packetPos will never be greater than SBUS_PACKET_SIZE
+                // because _packetPos >= SBUS_PACKET_SIZE
+                // will trigger _packetPos = 0
                 _packetBuf[_packetPos] = buf[i];
                 _packetPos++;
 
@@ -128,7 +131,7 @@ bool DecoderFSM::notifyCallback()
 {
     if (_packetCb)
         _packetCb(_lastPacket);
-    return _packetCb;
+    return static_cast<bool>(_packetCb);
 }
 
 const sbus_packet_t& DecoderFSM::lastPacket() const
