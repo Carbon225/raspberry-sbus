@@ -16,8 +16,9 @@ public:
     /// \param path tty path e.g. "/dev/ttyUSB0"
     /// \param blocking If true, read() will block, else it will return immediately
     /// \param timeout Timeout in deciseconds (10 is 1 second) for read() (only if blocking=true)
+    /// \param baudrate Optional custom baudrate
     /// \return Error code or RCDRIVERS_OK
-    rcdrivers_err_t install(const char path[], bool blocking, uint8_t timeout = 0);
+    rcdrivers_err_t install(const char path[], bool blocking, uint8_t timeout = 0, int baudrate = CRSF_BAUD);
 
     /// Close the opened tty.
     /// \return Error code or RCDRIVERS_OK (closing a closed tty also gives RCDRIVERS_OK)

@@ -12,9 +12,9 @@ CRSF::~CRSF() noexcept
     uninstall();
 }
 
-rcdrivers_err_t CRSF::install(const char path[], bool blocking, uint8_t timeout)
+rcdrivers_err_t CRSF::install(const char path[], bool blocking, uint8_t timeout, int baudrate)
 {
-    _fd = rcdrivers_tty_install(path, blocking, timeout, CRSF_BAUD, false, false);
+    _fd = rcdrivers_tty_install(path, blocking, timeout, baudrate, false, false);
     return _fd < 0 ? RCDRIVERS_FAIL : RCDRIVERS_OK;
 }
 
