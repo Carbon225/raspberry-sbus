@@ -3,6 +3,9 @@
 
 #include <cstdint>
 #include <functional>
+#include <algorithm>
+#include <cstring>
+
 #include "rcdrivers/errors.h"
 #include "rcdrivers/crsf/crsf_spec.h"
 
@@ -13,7 +16,7 @@ class CRSFDecoder
 public:
     CRSFDecoder();
 
-    rcdrivers_err_t feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut);
+    rcdrivers_err_t feed(const uint8_t buf[], size_t bufSize, bool *hadDesyncOut);
 
     rcdrivers_err_t onPacket(crsf_packet_cb cb);
 
@@ -31,7 +34,7 @@ private:
     } _state{State::WAIT_FOR_HEADER};
 
     size_t _parserConsumed{0};
-    uint8_t _packetBuf[256];
+    uint8_t _packetBuf[300]; // 300 to account for invalid length field
 
     template <size_t CAPACITY>
     class RingBuffer
@@ -43,6 +46,11 @@ private:
         size_t size() const
         {
             return _head - _tail;
+        }
+
+        constexpr size_t capacity() const
+        {
+            return CAPACITY;
         }
 
         size_t free() const
@@ -64,6 +72,23 @@ private:
         void discard(size_t count)
         {
             _tail += count;
+        }
+
+        void copyTo(uint8_t *const dst, size_t count, size_t offset) const
+        {
+            size_t start = (_tail + offset) & MASK;
+            size_t first = std::min(count, CAPACITY - start);
+            memcpy(dst, _buf + start, first);
+            memcpy(dst + first, _buf, count - first);
+        }
+
+        void pushFrom(const uint8_t *const src, size_t count)
+        {
+            size_t start = _head & MASK;
+            size_t first = std::min(count, CAPACITY - start);
+            memcpy(_buf + start, src, first);
+            memcpy(_buf, src + first, count - first);
+            _head += count;
         }
 
         bool isEmpty() const

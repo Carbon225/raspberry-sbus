@@ -37,7 +37,7 @@ static uint8_t crc8_data(const uint8_t *data, size_t len)
 
 static bool crsf_validate_frame(const uint8_t *frame, size_t len)
 {
-    if (len < 3)
+    if (len < 4)
     {
         return false; // Frame too short to be valid
     }
@@ -48,25 +48,31 @@ static bool crsf_validate_frame(const uint8_t *frame, size_t len)
 CRSFDecoder::CRSFDecoder()
 {}
 
-rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut)
+rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], size_t bufSize, bool *hadDesyncOut)
 {
-    *hadDesyncOut = false;
+    if (hadDesyncOut) *hadDesyncOut = false;
+    if (bufSize == 0) return RCDRIVERS_OK;
+
+    // trim input buffer
+    const uint8_t *src = buf;
+    size_t srcSize = bufSize;
+    if (srcSize > _recvBuf.capacity())
+    {
+        src = buf + srcSize - _recvBuf.capacity();
+        srcSize = _recvBuf.capacity();
+    }
 
     // discard old data if we don't have enough space
-    if (_recvBuf.free() < bufSize)
+    if (_recvBuf.free() < srcSize)
     {
         // this will reset the parser state
         // but it's an edge case, so the packet was probably lost anyway
-        _recvBuf.discard(bufSize - _recvBuf.free());
+        _recvBuf.discard(srcSize - _recvBuf.free());
         _state = State::WAIT_FOR_HEADER;
         _parserConsumed = 0;
     }
 
-    // push new data into buffer
-    for (int i = 0; i < bufSize; i++)
-    {
-        _recvBuf.push(buf[i]);
-    }
+    _recvBuf.pushFrom(src, srcSize);
 
     while (_parserConsumed < _recvBuf.size())
     {
@@ -88,20 +94,19 @@ rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], int bufSize, bool *hadDes
             case State::PACKET:
                 // move parser forward until we have a whole packet
                 _parserConsumed++;
-                if (_parserConsumed > CRSF_PACKET_LEN_BYTE && _recvBuf.peek(CRSF_PACKET_LEN_BYTE) + 2 > CRSF_MAX_PACKET_SIZE)
+                // this if will hit if the length byte is invalid
+                if (_parserConsumed > CRSF_MAX_PACKET_SIZE)
                 {
                     // packet is too long, discard it and restart parser
                     _recvBuf.discard(1);
                     _state = State::WAIT_FOR_HEADER;
                     _parserConsumed = 0;
                 }
+                // check if _parserConsumed matches the length byte
                 else if (packetReceivedWhole())
                 {
-                    // copy packet to buffer
-                    for (size_t i = 0; i < _parserConsumed; i++)
-                    {
-                        _packetBuf[i] = _recvBuf.peek(i);
-                    }
+                    // _parserConsumed <= CRSF_MAX_PACKET_SIZE guaranteed by the if above
+                    _recvBuf.copyTo(_packetBuf, _parserConsumed, 0);
                     if (verifyPacket() == RCDRIVERS_OK &&
                         decodePacket() == RCDRIVERS_OK)
                     {
@@ -129,18 +134,15 @@ bool CRSFDecoder::packetReceivedWhole()
     // got to the length byte and have the whole packet
     return _parserConsumed > CRSF_PACKET_LEN_BYTE &&
             // packet length is the length byte plus header and length itself
-           _parserConsumed >= (_recvBuf.peek(CRSF_PACKET_LEN_BYTE) + 2);
+           _parserConsumed >= (static_cast<size_t>(_recvBuf.peek(CRSF_PACKET_LEN_BYTE)) + 2);
 }
 
 rcdrivers_err_t CRSFDecoder::verifyPacket()
 {
-    if ((_packetBuf[0] == CRSF_SYNC_BYTE || _packetBuf[0] == CRSF_SYNC_BYTE_EDGETX) &&
-        packetReceivedWhole() &&
-        CRSF_PACKET_LEN(_packetBuf) <= CRSF_MAX_PACKET_SIZE &&
-        crsf_validate_frame(_packetBuf, CRSF_PACKET_LEN(_packetBuf)))
-        return RCDRIVERS_OK;
-    else
-        return RCDRIVERS_FAIL;
+    const size_t len = CRSF_PACKET_LEN(_packetBuf);
+    if (!isHeader(_packetBuf[0])) return RCDRIVERS_FAIL;
+    if (len < 4 || len > CRSF_MAX_PACKET_SIZE) return RCDRIVERS_FAIL;
+    return crsf_validate_frame(_packetBuf, len) ? RCDRIVERS_OK : RCDRIVERS_FAIL;
 }
 
 rcdrivers_err_t CRSFDecoder::decodePacket()
