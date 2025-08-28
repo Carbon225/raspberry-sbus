@@ -31,42 +31,53 @@ private:
     } _state{State::WAIT_FOR_HEADER};
 
     size_t _parserConsumed{0};
-    uint8_t _packetBuf[300];
+    uint8_t _packetBuf[256];
 
-    static constexpr size_t RINGBUF_CAP = 1024;
-    static_assert(RINGBUF_CAP && ((RINGBUF_CAP & (RINGBUF_CAP - 1)) == 0),
-                  "RINGBUF_CAP must be a power of two");
-    static constexpr size_t RINGBUF_MASK = RINGBUF_CAP - 1;
-
-    uint8_t _ringbuf[RINGBUF_CAP];
-    size_t _ringbufHead{0};
-    size_t _ringbufTail{0};
-
-    size_t ringbufSize() const
+    template <size_t CAPACITY>
+    class RingBuffer
     {
-        return _ringbufHead - _ringbufTail;
-    }
+        static_assert(CAPACITY && ((CAPACITY & (CAPACITY - 1)) == 0),
+                      "CAPACITY must be a power of two");
+        static constexpr size_t MASK = CAPACITY - 1;
+    public:
+        size_t size() const
+        {
+            return _head - _tail;
+        }
 
-    size_t ringbufFree() const
-    {
-        return RINGBUF_CAP - ringbufSize();
-    }
+        size_t free() const
+        {
+            return CAPACITY - size();
+        }
 
-    void ringbufPush(uint8_t data)
-    {
-        _ringbuf[_ringbufHead & RINGBUF_MASK] = data;
-        _ringbufHead++;
-    }
+        void push(uint8_t data)
+        {
+            _buf[_head & MASK] = data;
+            _head++;
+        }
 
-    uint8_t ringbufPeek(size_t index) const
-    {
-        return _ringbuf[(_ringbufTail + index) & RINGBUF_MASK];
-    }
+        uint8_t peek(size_t index) const
+        {
+            return _buf[(_tail + index) & MASK];
+        }
 
-    bool ringbufIsEmpty() const
-    {
-        return _ringbufHead == _ringbufTail;
-    }
+        void discard(size_t count)
+        {
+            _tail += count;
+        }
+
+        bool isEmpty() const
+        {
+            return _head == _tail;
+        }
+
+    private:
+        uint8_t _buf[CAPACITY];
+        size_t _head{0};
+        size_t _tail{0};
+    };
+
+    RingBuffer<1024> _recvBuf;
 
     crsf_packet_t _lastPacket{};
     crsf_packet_cb _packetCb{nullptr};

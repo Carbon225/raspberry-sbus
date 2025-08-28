@@ -53,11 +53,11 @@ rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], int bufSize, bool *hadDes
     *hadDesyncOut = false;
 
     // discard old data if we don't have enough space
-    if (ringbufFree() < bufSize)
+    if (_recvBuf.free() < bufSize)
     {
         // this will reset the parser state
         // but it's an edge case, so the packet was probably lost anyway
-        _ringbufTail += bufSize - ringbufFree();
+        _recvBuf.discard(bufSize - _recvBuf.free());
         _state = State::WAIT_FOR_HEADER;
         _parserConsumed = 0;
     }
@@ -65,53 +65,57 @@ rcdrivers_err_t CRSFDecoder::feed(const uint8_t buf[], int bufSize, bool *hadDes
     // push new data into buffer
     for (int i = 0; i < bufSize; i++)
     {
-        ringbufPush(buf[i]);
+        _recvBuf.push(buf[i]);
     }
 
-    while (_parserConsumed < ringbufSize())
+    while (_parserConsumed < _recvBuf.size())
     {
         switch (_state)
         {
             case State::WAIT_FOR_HEADER:
                 // move tail to first header
-                if (isHeader(ringbufPeek(0)))
+                if (isHeader(_recvBuf.peek(0)))
                 {
                     _state = State::PACKET;
                     _parserConsumed = 1;
                 }
                 else
                 {
-                    _ringbufTail++;
+                    _recvBuf.discard(1);
                 }
                 break;
 
             case State::PACKET:
                 // move parser forward until we have a whole packet
-                if (packetReceivedWhole())
+                _parserConsumed++;
+                if (_parserConsumed > CRSF_PACKET_LEN_BYTE && _recvBuf.peek(CRSF_PACKET_LEN_BYTE) + 2 > CRSF_MAX_PACKET_SIZE)
+                {
+                    // packet is too long, discard it and restart parser
+                    _recvBuf.discard(1);
+                    _state = State::WAIT_FOR_HEADER;
+                    _parserConsumed = 0;
+                }
+                else if (packetReceivedWhole())
                 {
                     // copy packet to buffer
                     for (size_t i = 0; i < _parserConsumed; i++)
                     {
-                        _packetBuf[i] = ringbufPeek(i);
+                        _packetBuf[i] = _recvBuf.peek(i);
                     }
                     if (verifyPacket() == RCDRIVERS_OK &&
                         decodePacket() == RCDRIVERS_OK)
                     {
                         notifyCallback();
                         // packet was ok, next one should start right after
-                        _ringbufTail += _parserConsumed;
+                        _recvBuf.discard(_parserConsumed);
                     }
                     else
                     {
                         // packet was invalid, restart parser after last header
-                        _ringbufTail++;
+                        _recvBuf.discard(1);
                     }
                     _state = State::WAIT_FOR_HEADER;
                     _parserConsumed = 0;
-                }
-                else
-                {
-                    _parserConsumed++;
                 }
                 break;
         }
@@ -125,7 +129,7 @@ bool CRSFDecoder::packetReceivedWhole()
     // got to the length byte and have the whole packet
     return _parserConsumed > CRSF_PACKET_LEN_BYTE &&
             // packet length is the length byte plus header and length itself
-           _parserConsumed >= (ringbufPeek(CRSF_PACKET_LEN_BYTE) + 2);
+           _parserConsumed >= (_recvBuf.peek(CRSF_PACKET_LEN_BYTE) + 2);
 }
 
 rcdrivers_err_t CRSFDecoder::verifyPacket()
@@ -210,7 +214,7 @@ rcdrivers_err_t CRSFDecoder::decode(const uint8_t buf[], crsf_packet_t *packet)
         memcpy(packet->payload.flight_mode.flight_mode, buf + CRSF_PACKET_PAYLOAD_BYTE, CRSF_PAYLOAD_LEN(buf));
         packet->payload.flight_mode.flight_mode[CRSF_MAX_FLIGHT_MODE_LEN - 1] = '\0';
         break;
-    
+
     default:
         packet->payload.other.len = CRSF_PAYLOAD_LEN(buf);
         memcpy(packet->payload.other.data, buf + CRSF_PACKET_PAYLOAD_BYTE, packet->payload.other.len);
